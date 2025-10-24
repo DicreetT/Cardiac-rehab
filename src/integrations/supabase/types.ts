@@ -14,16 +14,188 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      exercise_sessions: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          date: string
+          id: string
+          plan_name: string
+          plan_slug: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          date?: string
+          id?: string
+          plan_name: string
+          plan_slug: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          date?: string
+          id?: string
+          plan_name?: string
+          plan_slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_records: {
+        Row: {
+          comment: string | null
+          diastolic: number | null
+          hr: number
+          id: string
+          phase_name: string
+          session_id: string
+          systolic: number | null
+          target: string
+          timestamp: string
+        }
+        Insert: {
+          comment?: string | null
+          diastolic?: number | null
+          hr: number
+          id?: string
+          phase_name: string
+          session_id: string
+          systolic?: number | null
+          target: string
+          timestamp?: string
+        }
+        Update: {
+          comment?: string | null
+          diastolic?: number | null
+          hr?: number
+          id?: string
+          phase_name?: string
+          session_id?: string
+          systolic?: number | null
+          target?: string
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_records_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sos_records: {
+        Row: {
+          id: string
+          phase_name: string
+          session_id: string
+          symptoms: string
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          phase_name: string
+          session_id: string
+          symptoms: string
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          phase_name?: string
+          session_id?: string
+          symptoms?: string
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sos_records_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +322,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
