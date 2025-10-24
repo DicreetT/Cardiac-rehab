@@ -3,7 +3,6 @@ import { Play, Pause, RotateCcw, CheckCircle, Heart, AlertTriangle } from "lucid
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
-import bolitaRest from "@/assets/bolita-rest.png";
 import bolitaWorkout from "@/assets/bolita-workout.png";
 import {
   Dialog,
@@ -367,8 +366,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           {isRestPhase && (
             <div className="mt-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg overflow-hidden">
               <img 
-                src={bolitaRest} 
-                alt="Bolita en meditación" 
+                src={plan.image} 
+                alt={plan.name} 
                 className="w-full h-96 object-cover"
               />
               {plan.restMessage && (
