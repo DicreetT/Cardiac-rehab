@@ -1,14 +1,14 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Circle } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import BubbleBackground from "@/components/BubbleBackground";
 import bolitaZen from "@/assets/bolita-zen.png";
-import { useState, useEffect } from "react";
 
-const Calendar = () => {
+export default function Calendar() {
   const [completedDays, setCompletedDays] = useState<string[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('completedDays');
+    const saved = localStorage.getItem('bolita-completed-days');
     if (saved) {
       setCompletedDays(JSON.parse(saved));
     }
@@ -16,7 +16,6 @@ const Calendar = () => {
 
   const daysOfWeek = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   
-  // Get current week dates
   const today = new Date();
   const currentDay = today.getDay();
   const monday = new Date(today);
@@ -42,91 +41,98 @@ const Calendar = () => {
   const completedThisWeek = weekDates.filter(date => isCompleted(date)).length;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-2xl mx-auto px-4 py-8">
-        <Link to="/exercises" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-          <span>Volver a ejercicios</span>
-        </Link>
+    <div className="min-h-screen w-full bg-background text-foreground">
+      <section className="min-h-screen bg-gradient-to-br from-amber-100 to-yellow-200 relative overflow-hidden">
+        <BubbleBackground count={8} minSize={40} maxSize={120} />
 
-        <div className="text-center mb-8">
-          <img src={bolitaZen} alt="Bolita zen" className="w-32 h-32 mx-auto mb-4 rounded-full object-cover" />
-          <h1 className="text-4xl font-bold text-foreground mb-2">Tu Progreso</h1>
-          <p className="text-xl text-muted-foreground">Sigue así, ¡lo estás haciendo genial!</p>
-        </div>
+        <div className="container max-w-4xl mx-auto px-4 py-8 relative z-10">
+          <Link
+            to="/plans"
+            className="font-bubblegum inline-flex items-center gap-1 mb-6 px-3 py-1 rounded-lg border-2 border-black bg-white hover:bg-amber-50 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver a planes
+          </Link>
 
-        <Card className="mb-6 bg-card border-2">
-          <CardHeader>
-            <CardTitle className="text-2xl">Esta semana</CardTitle>
-            <CardDescription>
-              Has completado <span className="font-bold text-primary text-lg">{completedThisWeek}</span> de 7 días
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="w-full bg-muted rounded-full h-4 mb-2">
+          <div className="text-center mb-8">
+            <img 
+              src={bolitaZen} 
+              alt="Bolita zen" 
+              className="w-32 h-32 mx-auto mb-4 rounded-full object-cover border-4 border-white shadow-lg animate-float"
+            />
+            <div className="inline-block bg-yellow-400 px-5 py-2 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-3">
+              <h1 className="font-caveat text-5xl font-bold text-black">Tu Progreso</h1>
+            </div>
+            <p className="font-bubblegum text-lg text-gray-800">¡Sigue así, lo estás haciendo genial!</p>
+          </div>
+
+          <div className="bg-white rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6 mb-6">
+            <h2 className="font-caveat text-3xl font-bold mb-4 text-gray-900">Esta semana</h2>
+            <p className="font-bubblegum text-lg mb-4 text-gray-700">
+              Has completado <span className="text-primary font-bold text-2xl">{completedThisWeek}</span> de 7 días
+            </p>
+            
+            <div className="w-full bg-gray-200 rounded-full h-6 mb-2 border-2 border-black">
               <div 
-                className="bg-primary h-4 rounded-full transition-all duration-500"
+                className="bg-primary h-full rounded-full transition-all duration-500 border-r-2 border-black"
                 style={{ width: `${(completedThisWeek / 7) * 100}%` }}
               />
             </div>
-            <p className="text-sm text-muted-foreground text-center">
+            
+            <p className="text-center font-bubblegum text-sm text-gray-600">
               {completedThisWeek === 7 ? "¡Semana completa! 🎉" : `${7 - completedThisWeek} días restantes`}
             </p>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card className="bg-card border-2">
-          <CardHeader>
-            <CardTitle className="text-2xl">Calendario Semanal</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-7 gap-2">
+          <div className="bg-white rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6 mb-6">
+            <h2 className="font-caveat text-3xl font-bold mb-6 text-gray-900">Calendario Semanal</h2>
+            
+            <div className="grid grid-cols-7 gap-3">
               {weekDates.map((date, index) => {
                 const completed = isCompleted(date);
-                const today = isToday(date);
+                const todayDate = isToday(date);
                 
                 return (
                   <div key={index} className="flex flex-col items-center gap-2">
-                    <span className={`text-sm font-medium ${today ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <span className={`font-bubblegum text-sm ${todayDate ? 'text-primary font-bold' : 'text-gray-600'}`}>
                       {daysOfWeek[index]}
                     </span>
+                    
                     <div 
                       className={`
-                        w-12 h-12 rounded-full flex items-center justify-center transition-all
+                        w-14 h-14 rounded-full flex items-center justify-center transition-all border-2 border-black
                         ${completed 
-                          ? 'bg-primary text-primary-foreground' 
-                          : today 
-                            ? 'bg-accent text-accent-foreground'
-                            : 'bg-muted text-muted-foreground'
+                          ? 'bg-primary shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]' 
+                          : todayDate 
+                            ? 'bg-yellow-400 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
+                            : 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
                         }
-                        ${today ? 'ring-2 ring-primary ring-offset-2' : ''}
                       `}
                     >
                       {completed ? (
-                        <CheckCircle className="w-6 h-6" />
+                        <CheckCircle className="w-8 h-8 text-white" />
                       ) : (
-                        <Circle className="w-6 h-6" />
+                        <Circle className="w-8 h-8 text-gray-400" />
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    
+                    <span className="text-xs text-gray-600 font-bold">
                       {date.getDate()}
                     </span>
                   </div>
                 );
               })}
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <div className="mt-8 p-6 bg-accent/20 rounded-xl border-2 border-accent">
-          <p className="text-center text-foreground">
-            <span className="font-bold">💪 Consejo de Bolita:</span> La constancia es la clave del éxito. 
-            ¡Sigue así y verás resultados increíbles!
-          </p>
+          <div className="bg-gradient-to-r from-yellow-400 to-amber-400 rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6">
+            <p className="text-center font-bubblegum text-gray-900 leading-relaxed">
+              <span className="text-2xl">💪</span> <span className="font-bold">Consejo de Bolita:</span><br />
+              La constancia es la clave del éxito. ¡Sigue así y verás resultados increíbles!
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
-};
-
-export default Calendar;
+}
