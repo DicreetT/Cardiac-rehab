@@ -65,11 +65,6 @@ export default function PlanDetail() {
               
               {/* Contenido */}
               <div className="relative z-10">
-                <img 
-                  src={bolitaHappy} 
-                  alt="Bolita feliz" 
-                  className="w-32 h-32 mx-auto mb-4 rounded-full object-cover border-4 border-white shadow-lg"
-                />
                 <h1 className="font-caveat text-5xl sm:text-6xl font-bold text-gray-900 mb-2 drop-shadow-sm">
                   {plan.name}
                 </h1>
