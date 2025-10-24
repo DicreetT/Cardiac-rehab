@@ -79,7 +79,14 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
 
   // Función para reproducir pitido
   const playBeep = (frequency: number = 800, duration: number = 0.2) => {
-    if (!audioContextRef.current) return;
+    // Asegurar que el AudioContext esté activo
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
     
     const oscillator = audioContextRef.current.createOscillator();
     const gainNode = audioContextRef.current.createGain();
@@ -90,7 +97,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     oscillator.frequency.value = frequency;
     oscillator.type = "sine";
     
-    gainNode.gain.setValueAtTime(0.3, audioContextRef.current.currentTime);
+    // Volumen más alto para que se escuche mejor
+    gainNode.gain.setValueAtTime(0.5, audioContextRef.current.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + duration);
     
     oscillator.start(audioContextRef.current.currentTime);
@@ -103,6 +111,11 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
 
     const interval = setInterval(() => {
       setPhaseTimeLeft((prev) => {
+        // Pitido 3 segundos antes del final
+        if (prev === 4) {
+          playBeep(900, 0.25);
+        }
+        
         if (prev <= 1) {
           // Fin de fase
           playBeep(1000, 0.3);
@@ -154,7 +167,12 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   // Pitido de inicio de fase
   useEffect(() => {
     if (isRunning) {
-      playBeep(800, 0.2);
+      // Pitido al segundo 1 de cada fase
+      setTimeout(() => {
+        if (isRunning) {
+          playBeep(800, 0.25);
+        }
+      }, 1000);
       lastBeepRef.current = 0;
     }
   }, [currentPhaseIndex, isRunning]);
