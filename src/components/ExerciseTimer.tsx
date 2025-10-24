@@ -3,7 +3,7 @@ import { Play, Pause, RotateCcw, CheckCircle, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
-import bolitaDoctor from "@/assets/bolita-doctor.png";
+import bolitaRest from "@/assets/bolita-rest.png";
 import {
   Dialog,
   DialogContent,
@@ -319,14 +319,14 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           )}
           
           {isRestPhase && (
-            <div className="mt-4 bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+            <div className="mt-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4">
               <img 
-                src={bolitaDoctor} 
-                alt="Bolita doctor" 
-                className="w-48 h-48 mx-auto mb-3 rounded-full object-cover border-4 border-white shadow-lg"
+                src={bolitaRest} 
+                alt="Bolita en meditación" 
+                className="w-64 h-64 mx-auto mb-3 rounded-xl object-cover border-4 border-white shadow-lg"
               />
               {plan.restMessage && (
-                <p className="font-bubblegum text-blue-800 text-lg">{plan.restMessage}</p>
+                <p className="font-bubblegum text-green-800 text-lg">{plan.restMessage}</p>
               )}
             </div>
           )}
