@@ -72,36 +72,76 @@ export default function AdminDashboard() {
   const totalSessions = sessions.length;
   const completedSessions = sessions.filter(s => s.completed).length;
   const totalSOSRecords = sessions.reduce((sum, s) => sum + s.sos_records.length, 0);
-  const averageHR = sessions.reduce((sum, s) => {
-    const sessionAvg = s.hr_records.reduce((hrSum, r) => hrSum + r.hr, 0) / (s.hr_records.length || 1);
-    return sum + sessionAvg;
-  }, 0) / (totalSessions || 1);
 
-  // Calcular promedios por fase
-  const phaseAverages: Record<string, { totalHR: number; count: number; avgSystolic: number; avgDiastolic: number; countBP: number }> = {};
+  // Agrupar sesiones por usuario y fecha
+  const userSessions: Record<string, {
+    email: string;
+    name: string;
+    dailySessions: Record<string, {
+      sessions: Session[];
+      avgHR: number;
+      avgSystolic: number | null;
+      avgDiastolic: number | null;
+    }>;
+  }> = {};
+
   sessions.forEach(session => {
-    session.hr_records.forEach(record => {
-      if (!phaseAverages[record.phase_name]) {
-        phaseAverages[record.phase_name] = { totalHR: 0, count: 0, avgSystolic: 0, avgDiastolic: 0, countBP: 0 };
-      }
-      phaseAverages[record.phase_name].totalHR += record.hr;
-      phaseAverages[record.phase_name].count += 1;
-      if (record.systolic) {
-        phaseAverages[record.phase_name].avgSystolic += record.systolic;
-        phaseAverages[record.phase_name].countBP += 1;
-      }
-      if (record.diastolic) {
-        phaseAverages[record.phase_name].avgDiastolic += record.diastolic;
-      }
+    const userEmail = session.user?.email || 'unknown';
+    const userName = session.user?.full_name || 'Usuario desconocido';
+    const sessionDate = new Date(session.date).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
+
+    if (!userSessions[userEmail]) {
+      userSessions[userEmail] = {
+        email: userEmail,
+        name: userName,
+        dailySessions: {}
+      };
+    }
+
+    if (!userSessions[userEmail].dailySessions[sessionDate]) {
+      userSessions[userEmail].dailySessions[sessionDate] = {
+        sessions: [],
+        avgHR: 0,
+        avgSystolic: null,
+        avgDiastolic: null
+      };
+    }
+
+    userSessions[userEmail].dailySessions[sessionDate].sessions.push(session);
   });
 
-  const phaseStats = Object.entries(phaseAverages).map(([phase, stats]) => ({
-    phase,
-    avgHR: Math.round(stats.totalHR / stats.count),
-    avgSystolic: stats.countBP > 0 ? Math.round(stats.avgSystolic / stats.countBP) : null,
-    avgDiastolic: stats.countBP > 0 ? Math.round(stats.avgDiastolic / stats.countBP) : null,
-  }));
+  // Calcular promedios por día
+  Object.values(userSessions).forEach(user => {
+    Object.values(user.dailySessions).forEach(day => {
+      let totalHR = 0;
+      let countHR = 0;
+      let totalSystolic = 0;
+      let totalDiastolic = 0;
+      let countBP = 0;
+
+      day.sessions.forEach(session => {
+        session.hr_records.forEach(record => {
+          totalHR += record.hr;
+          countHR++;
+          if (record.systolic) {
+            totalSystolic += record.systolic;
+            countBP++;
+          }
+          if (record.diastolic) {
+            totalDiastolic += record.diastolic;
+          }
+        });
+      });
+
+      day.avgHR = countHR > 0 ? Math.round(totalHR / countHR) : 0;
+      day.avgSystolic = countBP > 0 ? Math.round(totalSystolic / countBP) : null;
+      day.avgDiastolic = countBP > 0 ? Math.round(totalDiastolic / countBP) : null;
+    });
+  });
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-amber-100 to-yellow-200 relative overflow-hidden">
@@ -127,7 +167,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Estadísticas generales */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Total Sesiones</CardTitle>
@@ -149,17 +189,6 @@ export default function AdminDashboard() {
           <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-1">
-                <Heart className="h-4 w-4" /> FC Promedio
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{Math.round(averageHR)} lpm</div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-1">
                 <AlertTriangle className="h-4 w-4" /> Alertas SOS
               </CardTitle>
             </CardHeader>
@@ -169,142 +198,131 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Estadísticas por fase */}
-        {phaseStats.length > 0 && (
-          <div className="mb-8">
-            <h2 className="font-caveat text-3xl font-bold mb-4">📊 Promedios por Fase</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {phaseStats.map((stat) => (
-                <Card key={stat.phase} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-bubblegum">{stat.phase}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Heart className="h-5 w-5 text-red-500" />
-                      <div>
-                        <p className="text-xs text-gray-600">FC Promedio</p>
-                        <p className="text-2xl font-bold text-red-600">{stat.avgHR} lpm</p>
+        {/* Vista por usuario */}
+        <div className="space-y-6">
+          {Object.values(userSessions).map((userData) => (
+            <Card key={userData.email} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
+                <CardTitle className="font-caveat text-3xl">{userData.name}</CardTitle>
+                <CardDescription className="font-bubblegum text-base">{userData.email}</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {Object.entries(userData.dailySessions).map(([date, dayData]) => (
+                  <div key={date} className="mb-6 last:mb-0">
+                    <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-gray-200">
+                      <h3 className="font-caveat text-2xl font-bold text-gray-800">{date}</h3>
+                      <div className="flex gap-4">
+                        <div className="text-center bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300">
+                          <p className="text-xs text-red-700 font-semibold">FC Promedio</p>
+                          <p className="text-2xl font-bold text-red-600">{dayData.avgHR} lpm</p>
+                        </div>
+                        {dayData.avgSystolic && dayData.avgDiastolic && (
+                          <div className="text-center bg-blue-100 px-4 py-2 rounded-lg border-2 border-blue-300">
+                            <p className="text-xs text-blue-700 font-semibold">TA Promedio</p>
+                            <p className="text-2xl font-bold text-blue-600">
+                              {dayData.avgSystolic}/{dayData.avgDiastolic} mmHg
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    {stat.avgSystolic && stat.avgDiastolic && (
-                      <div className="flex items-center gap-2 mt-3 pt-3 border-t">
-                        <TrendingUp className="h-5 w-5 text-blue-500" />
-                        <div>
-                          <p className="text-xs text-gray-600">TA Promedio</p>
-                          <p className="text-xl font-bold text-blue-600">
-                            {stat.avgSystolic}/{stat.avgDiastolic} mmHg
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Lista de sesiones */}
-        <div className="space-y-4">
-          {sessions.map((session) => (
-            <Card key={session.id} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="font-caveat text-2xl">{session.plan_name}</CardTitle>
-                    <CardDescription className="font-bubblegum">
-                      Usuario: {session.user?.full_name || session.user?.email || 'Usuario desconocido'}
-                    </CardDescription>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {new Date(session.date).toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
-                  {session.completed && (
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold border-2 border-green-300">
-                      Completada
-                    </span>
-                  )}
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                {/* Registros de FC y TA */}
-                {session.hr_records.length > 0 && (
-                  <div>
-                    <h4 className="font-bold mb-3 flex items-center gap-2 text-lg">
-                      <Heart className="h-5 w-5 text-red-500" />
-                      Frecuencias Cardíacas y Tensiones Arteriales
-                    </h4>
-                    <div className="grid gap-3">
-                      {session.hr_records.map((record, idx) => (
-                        <div key={idx} className="bg-gradient-to-r from-red-50 to-blue-50 p-4 rounded-lg border-2 border-gray-300 shadow-sm">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex-1">
-                              <p className="font-bold text-lg text-gray-800">{record.phase_name}</p>
-                              <p className="text-sm text-gray-600 mt-1">🎯 Meta: {record.target}</p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {new Date(record.timestamp).toLocaleTimeString('es-ES', {
+                    {/* Sesiones del día */}
+                    <div className="space-y-4 pl-4">
+                      {dayData.sessions.map((session) => (
+                        <div key={session.id} className="bg-white rounded-lg border-2 border-gray-200 p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-bubblegum text-lg font-bold text-gray-800">{session.plan_name}</h4>
+                              <p className="text-sm text-gray-600">
+                                {new Date(session.date).toLocaleTimeString('es-ES', {
                                   hour: '2-digit',
-                                  minute: '2-digit',
-                                  second: '2-digit'
+                                  minute: '2-digit'
                                 })}
                               </p>
-                              {record.comment && (
-                                <p className="text-sm italic mt-2 bg-yellow-50 p-2 rounded border border-yellow-200">
-                                  💬 "{record.comment}"
-                                </p>
-                              )}
                             </div>
-                            <div className="text-right ml-4">
-                              <div className="bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300 mb-2">
-                                <p className="text-xs text-red-700 font-semibold">FC</p>
-                                <p className="text-3xl font-bold text-red-600">{record.hr}</p>
-                                <p className="text-xs text-red-700">lpm</p>
-                              </div>
-                              {(record.systolic || record.diastolic) && (
-                                <div className="bg-blue-100 px-4 py-2 rounded-lg border-2 border-blue-300">
-                                  <p className="text-xs text-blue-700 font-semibold">Tensión Arterial</p>
-                                  <p className="text-2xl font-bold text-blue-600">
-                                    {record.systolic || '?'}/{record.diastolic || '?'}
-                                  </p>
-                                  <p className="text-xs text-blue-700">mmHg</p>
-                                </div>
-                              )}
-                            </div>
+                            {session.completed && (
+                              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold border-2 border-green-300">
+                                Completada
+                              </span>
+                            )}
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                {/* Registros SOS */}
-                {session.sos_records.length > 0 && (
-                  <div>
-                    <h4 className="font-bold mb-2 flex items-center gap-2 text-red-700">
-                      <AlertTriangle className="h-4 w-4" />
-                      Alertas SOS ({session.sos_records.length})
-                    </h4>
-                    <div className="grid gap-2">
-                      {session.sos_records.map((record, idx) => (
-                        <div key={idx} className="bg-red-100 p-3 rounded-lg border-2 border-red-400">
-                          <p className="font-semibold text-red-900">{record.phase_name}</p>
-                          <p className="text-sm text-gray-800 mt-1">{record.symptoms}</p>
-                          <p className="text-xs text-gray-600 mt-1">
-                            {new Date(record.timestamp).toLocaleTimeString('es-ES')}
-                          </p>
+                          {/* Registros de HR y TA */}
+                          {session.hr_records.length > 0 && (
+                            <div className="space-y-2">
+                              <h5 className="font-bold text-sm flex items-center gap-2 text-gray-700">
+                                <Heart className="h-4 w-4 text-red-500" />
+                                Mediciones
+                              </h5>
+                              <div className="grid gap-2">
+                                {session.hr_records.map((record, idx) => (
+                                  <div key={idx} className="bg-gradient-to-r from-red-50 to-blue-50 p-3 rounded-lg border border-gray-300">
+                                    <div className="flex justify-between items-center">
+                                      <div className="flex-1">
+                                        <p className="font-semibold text-sm text-gray-800">{record.phase_name}</p>
+                                        <p className="text-xs text-gray-600">🎯 {record.target}</p>
+                                        <p className="text-xs text-gray-500">
+                                          {new Date(record.timestamp).toLocaleTimeString('es-ES', {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            second: '2-digit'
+                                          })}
+                                        </p>
+                                        {record.comment && (
+                                          <p className="text-xs italic mt-1 bg-yellow-50 p-1 rounded border border-yellow-200">
+                                            💬 "{record.comment}"
+                                          </p>
+                                        )}
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <div className="text-center bg-red-100 px-3 py-1 rounded-lg border border-red-300">
+                                          <p className="text-xs text-red-700 font-semibold">FC</p>
+                                          <p className="text-xl font-bold text-red-600">{record.hr}</p>
+                                          <p className="text-xs text-red-700">lpm</p>
+                                        </div>
+                                        {(record.systolic || record.diastolic) && (
+                                          <div className="text-center bg-blue-100 px-3 py-1 rounded-lg border border-blue-300">
+                                            <p className="text-xs text-blue-700 font-semibold">TA</p>
+                                            <p className="text-lg font-bold text-blue-600">
+                                              {record.systolic || '?'}/{record.diastolic || '?'}
+                                            </p>
+                                            <p className="text-xs text-blue-700">mmHg</p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Alertas SOS */}
+                          {session.sos_records.length > 0 && (
+                            <div className="mt-3 pt-3 border-t">
+                              <h5 className="font-bold text-sm flex items-center gap-2 text-red-700 mb-2">
+                                <AlertTriangle className="h-4 w-4" />
+                                Alertas SOS ({session.sos_records.length})
+                              </h5>
+                              <div className="space-y-2">
+                                {session.sos_records.map((record, idx) => (
+                                  <div key={idx} className="bg-red-100 p-2 rounded-lg border border-red-400">
+                                    <p className="font-semibold text-sm text-red-900">{record.phase_name}</p>
+                                    <p className="text-xs text-gray-800">{record.symptoms}</p>
+                                    <p className="text-xs text-gray-600">
+                                      {new Date(record.timestamp).toLocaleTimeString('es-ES')}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
-                )}
+                ))}
               </CardContent>
             </Card>
           ))}
