@@ -318,14 +318,16 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
             </div>
           )}
           
-          {isRestPhase && plan.restMessage && (
+          {isRestPhase && (
             <div className="mt-4 bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
               <img 
                 src={bolitaDoctor} 
                 alt="Bolita doctor" 
-                className="w-32 h-32 mx-auto mb-3 rounded-full object-cover border-4 border-white shadow-lg"
+                className="w-48 h-48 mx-auto mb-3 rounded-full object-cover border-4 border-white shadow-lg"
               />
-              <p className="font-bubblegum text-blue-800 text-lg">{plan.restMessage}</p>
+              {plan.restMessage && (
+                <p className="font-bubblegum text-blue-800 text-lg">{plan.restMessage}</p>
+              )}
             </div>
           )}
         </div>
