@@ -25,7 +25,7 @@ export default function Index() {
 
   return (
     <div className="h-screen w-full bg-background text-foreground">
-      <section className="h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100 relative overflow-hidden">
+      <section className="h-screen bg-cover bg-center bg-no-repeat relative overflow-hidden" style={{ backgroundImage: 'url(/bolita/home.png)' }}>
         <BubbleBackground count={6} minSize={40} maxSize={100} opacity="bg-white/20" />
 
         <main className="h-full mx-auto max-w-7xl p-6 sm:p-10 relative z-10">
@@ -37,11 +37,11 @@ export default function Index() {
                 </span>
               </div>
               
-              <h1 className="font-caveat text-6xl sm:text-7xl font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] animate-pulse-subtle text-gray-800 mb-4">
+              <h1 className="font-caveat text-6xl sm:text-7xl font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] animate-pulse-subtle text-white mb-4">
                 Organización de Salud Bolita
               </h1>
               
-              <p className="mt-4 text-xl text-gray-800 drop-shadow-md bg-white/40 backdrop-blur-sm rounded-xl p-4 mb-6">
+              <p className="mt-4 text-xl text-white drop-shadow-md bg-black/30 backdrop-blur-sm rounded-xl p-4 mb-6">
                 Bienvenido/a a la Organización de Salud Bolita. Estamos especializados en acompañar a los papás en su camino hacia una salud próspera y nos alegra que te unas a nuestro programa.
               </p>
 
