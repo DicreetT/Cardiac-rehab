@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
 import bolitaWorkout from "@/assets/bolita-workout.png";
+import bolitaZen from "@/assets/bolita-zen.png";
 import {
   Dialog,
   DialogContent,
@@ -366,8 +367,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           {isRestPhase && (
             <div className="mt-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg overflow-hidden">
               <img 
-                src={plan.image} 
-                alt={plan.name} 
+                src={bolitaZen} 
+                alt="Bolita en meditación" 
                 className="w-full h-96 object-cover"
               />
               {plan.restMessage && (
