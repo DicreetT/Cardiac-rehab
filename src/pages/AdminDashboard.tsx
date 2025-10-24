@@ -77,6 +77,32 @@ export default function AdminDashboard() {
     return sum + sessionAvg;
   }, 0) / (totalSessions || 1);
 
+  // Calcular promedios por fase
+  const phaseAverages: Record<string, { totalHR: number; count: number; avgSystolic: number; avgDiastolic: number; countBP: number }> = {};
+  sessions.forEach(session => {
+    session.hr_records.forEach(record => {
+      if (!phaseAverages[record.phase_name]) {
+        phaseAverages[record.phase_name] = { totalHR: 0, count: 0, avgSystolic: 0, avgDiastolic: 0, countBP: 0 };
+      }
+      phaseAverages[record.phase_name].totalHR += record.hr;
+      phaseAverages[record.phase_name].count += 1;
+      if (record.systolic) {
+        phaseAverages[record.phase_name].avgSystolic += record.systolic;
+        phaseAverages[record.phase_name].countBP += 1;
+      }
+      if (record.diastolic) {
+        phaseAverages[record.phase_name].avgDiastolic += record.diastolic;
+      }
+    });
+  });
+
+  const phaseStats = Object.entries(phaseAverages).map(([phase, stats]) => ({
+    phase,
+    avgHR: Math.round(stats.totalHR / stats.count),
+    avgSystolic: stats.countBP > 0 ? Math.round(stats.avgSystolic / stats.countBP) : null,
+    avgDiastolic: stats.countBP > 0 ? Math.round(stats.avgDiastolic / stats.countBP) : null,
+  }));
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-amber-100 to-yellow-200 relative overflow-hidden">
       <BubbleBackground count={8} minSize={40} maxSize={120} />
@@ -142,6 +168,42 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Estadísticas por fase */}
+        {phaseStats.length > 0 && (
+          <div className="mb-8">
+            <h2 className="font-caveat text-3xl font-bold mb-4">📊 Promedios por Fase</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {phaseStats.map((stat) => (
+                <Card key={stat.phase} className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-bubblegum">{stat.phase}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Heart className="h-5 w-5 text-red-500" />
+                      <div>
+                        <p className="text-xs text-gray-600">FC Promedio</p>
+                        <p className="text-2xl font-bold text-red-600">{stat.avgHR} lpm</p>
+                      </div>
+                    </div>
+                    {stat.avgSystolic && stat.avgDiastolic && (
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t">
+                        <TrendingUp className="h-5 w-5 text-blue-500" />
+                        <div>
+                          <p className="text-xs text-gray-600">TA Promedio</p>
+                          <p className="text-xl font-bold text-blue-600">
+                            {stat.avgSystolic}/{stat.avgDiastolic} mmHg
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Lista de sesiones */}
         <div className="space-y-4">
