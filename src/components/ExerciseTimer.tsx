@@ -1,8 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, CheckCircle } from "lucide-react";
+import { Play, Pause, RotateCcw, CheckCircle, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ExerciseTimerProps {
   plan: Plan;
@@ -11,8 +21,10 @@ interface ExerciseTimerProps {
 
 interface HRRecord {
   phaseName: string;
-  hr: string;
+  hr: number;
   target: string;
+  comment?: string;
+  timestamp: string;
 }
 
 export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) {
@@ -20,8 +32,11 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [phaseTimeLeft, setPhaseTimeLeft] = useState(plan.phases[0].duration);
   const [hrRecords, setHrRecords] = useState<HRRecord[]>([]);
-  const [currentHR, setCurrentHR] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showHRDialog, setShowHRDialog] = useState(false);
+  const [currentHRInput, setCurrentHRInput] = useState("");
+  const [currentComment, setCurrentComment] = useState("");
+  const [pendingPhaseForHR, setPendingPhaseForHR] = useState<number | null>(null);
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const beepTimerRef = useRef<number | null>(null);
@@ -73,14 +88,26 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           // Fin de fase
           playBeep(1000, 0.3);
           
+          const finishedPhase = plan.phases[currentPhaseIndex];
+          const isSetPhase = finishedPhase.name.toLowerCase().startsWith('set') && 
+                            finishedPhase.hrTarget;
+          
           if (currentPhaseIndex < plan.phases.length - 1) {
-            // Siguiente fase
-            setCurrentPhaseIndex((idx) => idx + 1);
-            return plan.phases[currentPhaseIndex + 1].duration;
+            // Si terminó un set con meta de HR, pausar y pedir registro
+            if (isSetPhase) {
+              setIsRunning(false);
+              setPendingPhaseForHR(currentPhaseIndex);
+              setShowHRDialog(true);
+            } else {
+              // Siguiente fase automática (para calentamiento, descansos, enfriamiento)
+              setCurrentPhaseIndex((idx) => idx + 1);
+              return plan.phases[currentPhaseIndex + 1].duration;
+            }
           } else {
             // Ejercicio completado
             setIsRunning(false);
             setIsCompleted(true);
+            saveSessionToLocalStorage();
             return 0;
           }
         }
@@ -124,20 +151,64 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     setCurrentPhaseIndex(0);
     setPhaseTimeLeft(plan.phases[0].duration);
     setHrRecords([]);
-    setCurrentHR("");
     setIsCompleted(false);
+    setShowHRDialog(false);
+    setPendingPhaseForHR(null);
+    setCurrentHRInput("");
+    setCurrentComment("");
     lastBeepRef.current = 0;
   };
 
-  const handleRecordHR = () => {
-    if (currentHR && currentPhase.hrTarget) {
-      setHrRecords([...hrRecords, {
-        phaseName: currentPhase.name,
-        hr: currentHR,
-        target: currentPhase.hrTarget
-      }]);
-      setCurrentHR("");
+  const handleSaveHR = () => {
+    if (pendingPhaseForHR !== null && currentHRInput) {
+      const phase = plan.phases[pendingPhaseForHR];
+      const newRecord: HRRecord = {
+        phaseName: phase.name,
+        hr: parseInt(currentHRInput),
+        target: phase.hrTarget || "",
+        comment: currentComment.trim() || undefined,
+        timestamp: new Date().toISOString()
+      };
+      
+      setHrRecords([...hrRecords, newRecord]);
+      setShowHRDialog(false);
+      setCurrentHRInput("");
+      setCurrentComment("");
+      
+      // Avanzar a siguiente fase
+      setCurrentPhaseIndex(pendingPhaseForHR + 1);
+      setPhaseTimeLeft(plan.phases[pendingPhaseForHR + 1].duration);
+      setPendingPhaseForHR(null);
+      
+      // Reanudar automáticamente
+      setIsRunning(true);
     }
+  };
+
+  const handleSkipHR = () => {
+    if (pendingPhaseForHR !== null) {
+      setShowHRDialog(false);
+      setCurrentHRInput("");
+      setCurrentComment("");
+      
+      // Avanzar a siguiente fase sin registro
+      setCurrentPhaseIndex(pendingPhaseForHR + 1);
+      setPhaseTimeLeft(plan.phases[pendingPhaseForHR + 1].duration);
+      setPendingPhaseForHR(null);
+      
+      // Reanudar automáticamente
+      setIsRunning(true);
+    }
+  };
+
+  const saveSessionToLocalStorage = () => {
+    const sessionKey = `bolita-exercise-${plan.slug}-${new Date().toISOString().split('T')[0]}`;
+    const sessionData = {
+      planName: plan.name,
+      date: new Date().toISOString(),
+      records: hrRecords
+    };
+    localStorage.setItem(sessionKey, JSON.stringify(sessionData));
   };
 
   const formatTime = (seconds: number) => {
@@ -283,39 +354,110 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         </div>
       </div>
 
-      {/* Registro de FC */}
-      {currentPhase.hrTarget && !isRestPhase && (
-        <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <h3 className="font-caveat text-2xl font-bold mb-4">Registrar Frecuencia Cardíaca</h3>
+      {/* Dialog para registrar FC al finalizar set */}
+      <Dialog open={showHRDialog} onOpenChange={setShowHRDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-caveat text-3xl">
+              <Heart className="inline-block mr-2 text-red-500" />
+              Registra tu FC
+            </DialogTitle>
+            <DialogDescription>
+              {pendingPhaseForHR !== null && (
+                <>
+                  Has completado: <span className="font-bold">{plan.phases[pendingPhaseForHR].name}</span>
+                  <br />
+                  Meta: {plan.phases[pendingPhaseForHR].hrTarget}
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="hr-input">Frecuencia Cardíaca (lpm)</Label>
+              <Input
+                id="hr-input"
+                type="number"
+                value={currentHRInput}
+                onChange={(e) => setCurrentHRInput(e.target.value)}
+                placeholder="Ej: 80"
+                className="mt-1"
+                min="40"
+                max="200"
+              />
+            </div>
+            <div>
+              <Label htmlFor="comment-input">Comentario (opcional)</Label>
+              <Textarea
+                id="comment-input"
+                value={currentComment}
+                onChange={(e) => setCurrentComment(e.target.value)}
+                placeholder="¿Cómo te sentiste?"
+                className="mt-1"
+                rows={3}
+              />
+            </div>
+          </div>
           <div className="flex gap-3">
-            <input
-              type="number"
-              value={currentHR}
-              onChange={(e) => setCurrentHR(e.target.value)}
-              placeholder="FC en lpm"
-              className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary"
-            />
-            <Button onClick={handleRecordHR} disabled={!currentHR}>
-              Registrar
+            <Button
+              onClick={handleSaveHR}
+              disabled={!currentHRInput}
+              className="flex-1"
+            >
+              Guardar y continuar
+            </Button>
+            <Button
+              onClick={handleSkipHR}
+              variant="outline"
+              className="flex-1"
+            >
+              Saltar
             </Button>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
-      {/* Registros de FC */}
+      {/* Resumen de registros de FC */}
       {hrRecords.length > 0 && (
         <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <h3 className="font-caveat text-2xl font-bold mb-4">Registros de FC</h3>
-          <div className="space-y-2">
+          <h3 className="font-caveat text-2xl font-bold mb-4 flex items-center gap-2">
+            <Heart className="text-red-500" />
+            Resumen de tu sesión
+          </h3>
+          <div className="space-y-3">
             {hrRecords.map((record, idx) => (
-              <div key={idx} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
-                <span className="font-semibold">{record.phaseName}</span>
-                <span>
-                  <span className="text-primary font-bold">{record.hr} lpm</span>
-                  <span className="text-gray-500 text-sm ml-2">(meta: {record.target})</span>
-                </span>
+              <div key={idx} className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-lg border-2 border-red-200">
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-bold text-gray-900">{record.phaseName}</span>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-red-600">{record.hr} lpm</div>
+                    <div className="text-xs text-gray-600">Meta: {record.target}</div>
+                  </div>
+                </div>
+                {record.comment && (
+                  <p className="text-sm text-gray-700 italic mt-2 border-t border-red-200 pt-2">
+                    "{record.comment}"
+                  </p>
+                )}
+                <div className="text-xs text-gray-500 mt-1">
+                  {new Date(record.timestamp).toLocaleTimeString('es-ES', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
+                </div>
               </div>
             ))}
+            
+            {isCompleted && (
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-300 mt-4">
+                <p className="text-center font-bold text-green-800">
+                  ✨ Promedio de FC: {Math.round(hrRecords.reduce((sum, r) => sum + r.hr, 0) / hrRecords.length)} lpm
+                </p>
+                <p className="text-center text-sm text-gray-600 mt-1">
+                  {hrRecords.length} registro{hrRecords.length !== 1 ? 's' : ''} completado{hrRecords.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
