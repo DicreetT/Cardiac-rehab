@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useParams, useNavigate, Navigate } from "react-router-dom";
 import { planBySlug } from "@/data/plans";
 import BubbleBackground from "@/components/BubbleBackground";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import ExerciseTimer from "@/components/ExerciseTimer";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import bolitaHappy from "@/assets/bolita-happy.png";
 
@@ -73,51 +74,7 @@ export default function PlanDetail() {
             </div>
 
             <div className="p-8">
-              {plan.exercises.map((exercise, idx) => (
-                <div key={idx} className="mb-8 last:mb-0">
-                  <div className="bg-yellow-400 inline-block px-4 py-2 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-4">
-                    <h2 className="font-caveat text-3xl font-bold">{exercise.name}</h2>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 mb-6">
-                    <div className="bg-primary/10 p-3 rounded-xl border-2 border-primary/20 text-center">
-                      <div className="font-bold text-lg">{exercise.sets}</div>
-                      <div className="text-sm text-gray-600">Series</div>
-                    </div>
-                    <div className="bg-primary/10 p-3 rounded-xl border-2 border-primary/20 text-center">
-                      <div className="font-bold text-lg">{exercise.reps}</div>
-                      <div className="text-sm text-gray-600">Reps</div>
-                    </div>
-                    <div className="bg-primary/10 p-3 rounded-xl border-2 border-primary/20 text-center">
-                      <div className="font-bold text-lg">{exercise.rest}</div>
-                      <div className="text-sm text-gray-600">Descanso</div>
-                    </div>
-                  </div>
-
-                  <div className="bg-amber-50 p-6 rounded-xl border-2 border-amber-200">
-                    <h3 className="font-bubblegum text-lg mb-4 text-gray-800">Cómo hacerlo:</h3>
-                    <ol className="space-y-3">
-                      {exercise.instructions.map((instruction, instIdx) => (
-                        <li key={instIdx} className="flex gap-3">
-                          <span className="flex-shrink-0 w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm border-2 border-black">
-                            {instIdx + 1}
-                          </span>
-                          <span className="text-gray-700 pt-0.5">{instruction}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </div>
-              ))}
-
-              <button
-                onClick={handleComplete}
-                disabled={isCompleting}
-                className="w-full mt-6 bg-primary hover:bg-primary/90 disabled:bg-gray-400 text-white font-bold py-4 px-6 rounded-xl text-lg border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-bubblegum flex items-center justify-center gap-2"
-              >
-                <CheckCircle className="w-5 h-5" />
-                {isCompleting ? '¡Completado!' : '¡Marcar como completado!'}
-              </button>
+              <ExerciseTimer plan={plan} onComplete={handleComplete} />
             </div>
           </div>
         </div>

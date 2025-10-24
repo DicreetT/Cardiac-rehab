@@ -1,9 +1,11 @@
-export interface Exercise {
+export interface Phase {
   name: string;
-  sets: number;
-  reps: string;
-  rest: string;
-  instructions: string[];
+  duration: number; // en segundos
+  intensity: string;
+  hrTarget?: string; // frecuencia cardíaca objetivo
+  description: string;
+  beepInterval?: number; // intervalo de pitidos en segundos (si aplica)
+  beepAction?: string; // acción durante el pitido
 }
 
 export interface Plan {
@@ -11,130 +13,335 @@ export interface Plan {
   slug: string;
   name: string;
   description: string;
+  intro: string; // narrativa introductoria
   duration: string;
   difficulty: string;
   image: string;
-  exercises: Exercise[];
+  hrRange: string; // rango de FC, ej: "70-85 lpm"
+  phases: Phase[];
+  restMessage?: string; // mensaje motivacional durante descansos
 }
 
 export const plans: Plan[] = [
   {
     id: "1",
-    slug: "playa",
-    name: "Paseando por la playa",
-    description: "Camina y disfruta de la brisa marina",
-    duration: "30 min",
+    slug: "paseo-mar",
+    name: "Paseo por el mar 🏖️",
+    description: "Pedalea suave como si estuvieras junto al mar",
+    intro: "Imagina la brisa marina mientras pedaleas tranquilamente. Hoy vamos a disfrutar de un paseo relajante.",
+    duration: "37 min",
     difficulty: "Principiante",
     image: "beach",
-    exercises: [
+    hrRange: "70-85 lpm",
+    restMessage: "Paras en un puesto de arepas a tomarte un juguito y recuperar fuerzas 🍍",
+    phases: [
       {
-        name: "Caminata por la arena",
-        sets: 1,
-        reps: "30 min",
-        rest: "Sin descanso",
-        instructions: [
-          "Camina descalzo por la arena si es posible",
-          "Mantén un ritmo constante y relajado",
-          "Respira profundamente y disfruta del aire fresco",
-          "Observa el horizonte y relaja tu mente",
-          "Deja que las olas mojen tus pies si te apetece"
-        ]
+        name: "Calentamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "activar músculos, respiración lenta"
+      },
+      {
+        name: "Set 1",
+        duration: 540,
+        intensity: "leve",
+        hrTarget: "70-75 lpm",
+        description: "pedalear sin resistencia, meta calor muscular"
+      },
+      {
+        name: "Descanso 1",
+        duration: 180,
+        intensity: "pausa",
+        description: "recuperación activa"
+      },
+      {
+        name: "Set 2",
+        duration: 540,
+        intensity: "moderada",
+        hrTarget: "80 lpm",
+        description: "ritmo que permita hablar, meta 80 lpm, sin elevar TA"
+      },
+      {
+        name: "Descanso 2",
+        duration: 180,
+        intensity: "pausa",
+        description: "recuperación activa"
+      },
+      {
+        name: "Set 3",
+        duration: 540,
+        intensity: "leve con levantadas",
+        hrTarget: "75-80 lpm",
+        description: "pedaleo suave, cada 30 s pitido → ponerse de pie 2 s",
+        beepInterval: 30,
+        beepAction: "¡De pie 2 segundos!"
+      },
+      {
+        name: "Enfriamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "respiración 4 s inspira / 4 s espira"
       }
     ]
   },
   {
     id: "2",
-    slug: "persecucion",
-    name: "Bolita se ha robado las llaves, vamos a atraparla!",
-    description: "Ejercicio cardiovascular divertido",
-    duration: "15 min",
+    slug: "subida-zen",
+    name: "Subida zen 🚴‍♂️",
+    description: "Sube la montaña con calma y determinación",
+    intro: "Hoy escalamos una montaña imaginaria. Cada pedalada te acerca a la cima.",
+    duration: "35 min",
     difficulty: "Intermedio",
-    image: "keys",
-    exercises: [
+    image: "bike",
+    hrRange: "75-90 lpm",
+    restMessage: "Pausa para admirar el paisaje desde la altura 🏔️",
+    phases: [
       {
-        name: "Sprints de persecución",
-        sets: 8,
-        reps: "30 seg",
-        rest: "60 segundos",
-        instructions: [
-          "Empieza desde una posición relajada",
-          "Corre a máxima velocidad durante 30 segundos",
-          "Imagina que persigues a Bolita traviesa",
-          "Mantén los brazos en movimiento para mayor impulso",
-          "Recupera el aliento durante el descanso"
-        ]
+        name: "Calentamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "preparar el cuerpo para el esfuerzo"
+      },
+      {
+        name: "Set 1",
+        duration: 480,
+        intensity: "moderada",
+        hrTarget: "80 lpm",
+        description: "comenzamos la subida con ritmo constante"
+      },
+      {
+        name: "Descanso 1",
+        duration: 120,
+        intensity: "pausa",
+        description: "recuperación breve"
+      },
+      {
+        name: "Set 2",
+        duration: 480,
+        intensity: "moderada-alta",
+        hrTarget: "85 lpm",
+        description: "aumentamos resistencia, seguimos subiendo"
+      },
+      {
+        name: "Descanso 2",
+        duration: 120,
+        intensity: "pausa",
+        description: "recuperación breve"
+      },
+      {
+        name: "Set 3",
+        duration: 480,
+        intensity: "alta",
+        hrTarget: "90 lpm",
+        description: "último empujón hacia la cima"
+      },
+      {
+        name: "Enfriamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "bajada suave y respiración profunda"
       }
     ]
   },
   {
     id: "3",
-    slug: "bici-bosque",
-    name: "De bici por el bosque",
-    description: "Pedalea entre la naturaleza",
-    duration: "45 min",
+    slug: "camino-bosque",
+    name: "Camino del bosque 🌿",
+    description: "Explora senderos naturales a tu ritmo",
+    intro: "Adéntrate en el bosque, donde cada pedalada te conecta con la naturaleza.",
+    duration: "40 min",
     difficulty: "Intermedio",
     image: "bike",
-    exercises: [
+    hrRange: "70-85 lpm",
+    restMessage: "Pausa para escuchar los pájaros y respirar aire fresco 🌳",
+    phases: [
       {
-        name: "Ciclo por sendero natural",
-        sets: 1,
-        reps: "45 min",
-        rest: "Pausas según necesites",
-        instructions: [
-          "Ajusta tu bicicleta a una altura cómoda",
-          "Mantén un ritmo moderado que puedas sostener",
-          "Respeta las señales del sendero",
-          "Disfruta del paisaje y el aire fresco",
-          "Mantente hidratado durante el recorrido"
-        ]
+        name: "Calentamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "entrada suave al bosque"
+      },
+      {
+        name: "Set 1",
+        duration: 600,
+        intensity: "leve-moderada",
+        hrTarget: "75 lpm",
+        description: "ritmo constante por el sendero"
+      },
+      {
+        name: "Descanso 1",
+        duration: 150,
+        intensity: "pausa",
+        description: "recuperación y observación"
+      },
+      {
+        name: "Set 2",
+        duration: 600,
+        intensity: "moderada",
+        hrTarget: "80 lpm",
+        description: "avanzamos por terreno variado"
+      },
+      {
+        name: "Descanso 2",
+        duration: 150,
+        intensity: "pausa",
+        description: "recuperación y observación"
+      },
+      {
+        name: "Set 3",
+        duration: 600,
+        intensity: "leve",
+        hrTarget: "75 lpm",
+        description: "regreso tranquilo"
+      },
+      {
+        name: "Enfriamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "salida del bosque con respiración profunda"
       }
     ]
   },
   {
     id: "4",
-    slug: "sincronia",
-    name: "Sincronía mente y corazón",
-    description: "Conecta con tu interior",
-    duration: "20 min",
+    slug: "respiracion-equilibrio",
+    name: "Respiración y equilibrio 🌬️",
+    description: "Conecta cuerpo y mente con movimiento consciente",
+    intro: "Hoy el ejercicio es interno. Cada respiración cuenta, cada pedalada es meditación.",
+    duration: "25 min",
     difficulty: "Principiante",
     image: "meditation",
-    exercises: [
+    hrRange: "65-75 lpm",
+    phases: [
       {
-        name: "Meditación y respiración consciente",
-        sets: 1,
-        reps: "20 min",
-        rest: "Sesión continua",
-        instructions: [
-          "Siéntate en una posición cómoda con la espalda recta",
-          "Cierra los ojos y respira profundamente",
-          "Enfoca tu atención en tu respiración",
-          "Observa tus pensamientos sin juzgarlos",
-          "Siente la conexión entre tu mente y tu corazón"
-        ]
+        name: "Calentamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "respiración consciente, enfoque mental"
+      },
+      {
+        name: "Set 1",
+        duration: 420,
+        intensity: "muy leve",
+        hrTarget: "70 lpm",
+        description: "pedaleo suave coordinado con respiración"
+      },
+      {
+        name: "Set 2",
+        duration: 420,
+        intensity: "muy leve",
+        hrTarget: "70 lpm",
+        description: "mantener la conexión mente-cuerpo"
+      },
+      {
+        name: "Enfriamiento",
+        duration: 360,
+        intensity: "sin resistencia",
+        description: "respiración profunda 5 s inspira / 5 s espira"
       }
     ]
   },
   {
     id: "5",
-    slug: "volvo-taller",
-    name: "El Volvo esta en el taller",
-    description: "Camina mientras el coche está en reparación",
-    duration: "40 min",
-    difficulty: "Principiante",
-    image: "volvo",
-    exercises: [
+    slug: "rueda-interior",
+    name: "Rueda interior 🔄",
+    description: "Gira y fluye con tu propio ritmo",
+    intro: "Hoy exploramos nuestro ritmo interno. Como una rueda que gira sin prisa pero sin pausa.",
+    duration: "30 min",
+    difficulty: "Intermedio",
+    image: "keys",
+    hrRange: "75-85 lpm",
+    restMessage: "Pausa para resetear y volver a empezar 🔄",
+    phases: [
       {
-        name: "Caminata urbana",
-        sets: 1,
-        reps: "40 min",
-        rest: "Pausas breves si es necesario",
-        instructions: [
-          "Aprovecha que el coche está en el taller para caminar",
-          "Mantén un ritmo constante y cómodo",
-          "Observa tu entorno y disfruta del camino",
-          "Mantén una postura erguida al caminar",
-          "Escucha tu música favorita o un podcast si lo deseas"
-        ]
+        name: "Calentamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "iniciar el movimiento circular"
+      },
+      {
+        name: "Set 1",
+        duration: 480,
+        intensity: "moderada",
+        hrTarget: "80 lpm",
+        description: "encuentra tu ritmo natural"
+      },
+      {
+        name: "Descanso 1",
+        duration: 120,
+        intensity: "pausa",
+        description: "breve pausa"
+      },
+      {
+        name: "Set 2",
+        duration: 480,
+        intensity: "moderada",
+        hrTarget: "82 lpm",
+        description: "mantén el flujo constante"
+      },
+      {
+        name: "Descanso 2",
+        duration: 120,
+        intensity: "pausa",
+        description: "breve pausa"
+      },
+      {
+        name: "Set 3",
+        duration: 480,
+        intensity: "moderada",
+        hrTarget: "80 lpm",
+        description: "cierre del ciclo con conciencia"
+      },
+      {
+        name: "Enfriamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "desaceleración gradual"
+      }
+    ]
+  },
+  {
+    id: "6",
+    slug: "mente-corazon",
+    name: "Mente-corazón sincronía 💓",
+    description: "Sincroniza pensamiento, respiración y movimiento",
+    intro: "La verdadera fuerza viene de la sincronía entre mente y corazón. Hoy los unimos.",
+    duration: "28 min",
+    difficulty: "Principiante",
+    image: "meditation",
+    hrRange: "70-80 lpm",
+    phases: [
+      {
+        name: "Calentamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "conectar con el cuerpo y la respiración"
+      },
+      {
+        name: "Set 1",
+        duration: 480,
+        intensity: "leve",
+        hrTarget: "72 lpm",
+        description: "pedaleo consciente, observa tu corazón"
+      },
+      {
+        name: "Descanso",
+        duration: 120,
+        intensity: "pausa",
+        description: "momento de introspección"
+      },
+      {
+        name: "Set 2",
+        duration: 480,
+        intensity: "leve-moderada",
+        hrTarget: "78 lpm",
+        description: "aumenta intensidad manteniendo la calma mental"
+      },
+      {
+        name: "Enfriamiento",
+        duration: 300,
+        intensity: "sin resistencia",
+        description: "cierre con gratitud, respiración 4-4"
       }
     ]
   }
