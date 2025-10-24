@@ -152,22 +152,50 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   return (
     <div className="space-y-6">
       {/* Intro narrativa */}
-      <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 rounded-xl border-2 border-amber-200">
-        <p className="font-bubblegum text-lg text-gray-800 italic">{plan.intro}</p>
+      <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-xl border-2 border-gray-700">
+        <p className="font-bubblegum text-lg text-gray-100 italic">{plan.intro}</p>
       </div>
+
+      {/* Objetivo y Foco */}
+      {(plan.objective || plan.focus) && (
+        <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          {plan.objective && (
+            <p className="mb-2">
+              <span className="font-bold">Objetivo:</span> {plan.objective}
+            </p>
+          )}
+          {plan.focus && (
+            <p>
+              <span className="font-bold">Foco:</span> {plan.focus}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Resumen del plan */}
       <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-        <h3 className="font-caveat text-2xl font-bold mb-4">Resumen del plan</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-primary/10 p-3 rounded-lg border border-primary/20">
-            <div className="text-sm text-gray-600">Duración total</div>
-            <div className="font-bold text-lg">{plan.duration}</div>
-          </div>
-          <div className="bg-primary/10 p-3 rounded-lg border border-primary/20">
-            <div className="text-sm text-gray-600">Rango FC objetivo</div>
-            <div className="font-bold text-lg">{plan.hrRange}</div>
-          </div>
+        <h3 className="font-caveat text-2xl font-bold mb-4">Tabla del ejercicio</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100 border-b-2 border-gray-300">
+                <th className="text-left p-3 font-bold">Fase</th>
+                <th className="text-left p-3 font-bold">Duración</th>
+                <th className="text-left p-3 font-bold">Meta</th>
+                <th className="text-left p-3 font-bold">Notas</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plan.phases.map((phase, idx) => (
+                <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="p-3 font-semibold">{phase.name}</td>
+                  <td className="p-3">{Math.floor(phase.duration / 60)}'</td>
+                  <td className="p-3">{phase.hrTarget || '—'}</td>
+                  <td className="p-3 text-sm text-gray-700">{phase.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
