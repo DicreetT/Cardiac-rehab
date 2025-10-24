@@ -173,30 +173,47 @@ export default function AdminDashboard() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                {/* Registros de FC */}
+                {/* Registros de FC y TA */}
                 {session.hr_records.length > 0 && (
                   <div>
-                    <h4 className="font-bold mb-2 flex items-center gap-2">
-                      <Heart className="h-4 w-4 text-red-500" />
-                      Registros de Frecuencia Cardíaca ({session.hr_records.length})
+                    <h4 className="font-bold mb-3 flex items-center gap-2 text-lg">
+                      <Heart className="h-5 w-5 text-red-500" />
+                      Frecuencias Cardíacas y Tensiones Arteriales
                     </h4>
-                    <div className="grid gap-2">
+                    <div className="grid gap-3">
                       {session.hr_records.map((record, idx) => (
-                        <div key={idx} className="bg-red-50 p-3 rounded-lg border border-red-200">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-semibold">{record.phase_name}</p>
-                              <p className="text-sm text-gray-600">Meta: {record.target}</p>
+                        <div key={idx} className="bg-gradient-to-r from-red-50 to-blue-50 p-4 rounded-lg border-2 border-gray-300 shadow-sm">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1">
+                              <p className="font-bold text-lg text-gray-800">{record.phase_name}</p>
+                              <p className="text-sm text-gray-600 mt-1">🎯 Meta: {record.target}</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {new Date(record.timestamp).toLocaleTimeString('es-ES', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  second: '2-digit'
+                                })}
+                              </p>
                               {record.comment && (
-                                <p className="text-sm italic mt-1">"{record.comment}"</p>
+                                <p className="text-sm italic mt-2 bg-yellow-50 p-2 rounded border border-yellow-200">
+                                  💬 "{record.comment}"
+                                </p>
                               )}
                             </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-bold text-red-600">{record.hr} lpm</p>
+                            <div className="text-right ml-4">
+                              <div className="bg-red-100 px-4 py-2 rounded-lg border-2 border-red-300 mb-2">
+                                <p className="text-xs text-red-700 font-semibold">FC</p>
+                                <p className="text-3xl font-bold text-red-600">{record.hr}</p>
+                                <p className="text-xs text-red-700">lpm</p>
+                              </div>
                               {(record.systolic || record.diastolic) && (
-                                <p className="text-sm font-semibold text-blue-600">
-                                  TA: {record.systolic || '?'}/{record.diastolic || '?'}
-                                </p>
+                                <div className="bg-blue-100 px-4 py-2 rounded-lg border-2 border-blue-300">
+                                  <p className="text-xs text-blue-700 font-semibold">Tensión Arterial</p>
+                                  <p className="text-2xl font-bold text-blue-600">
+                                    {record.systolic || '?'}/{record.diastolic || '?'}
+                                  </p>
+                                  <p className="text-xs text-blue-700">mmHg</p>
+                                </div>
                               )}
                             </div>
                           </div>
