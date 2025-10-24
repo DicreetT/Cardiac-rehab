@@ -164,20 +164,25 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     return () => clearInterval(interval);
   }, [isRunning, currentPhaseIndex, currentPhase, plan.phases, isCompleted]);
 
-  // Pitido de inicio de fase
+  // Pitido de inicio de fase (solo al cambiar de fase, no al iniciar)
   useEffect(() => {
-    if (isRunning) {
-      // Pitido al segundo 1 de cada fase
-      setTimeout(() => {
-        if (isRunning) {
-          playBeep(800, 0.25);
-        }
-      }, 1000);
+    if (isRunning && currentPhaseIndex > 0) {
+      // Pitido al iniciar nueva fase
+      playBeep(800, 0.25);
       lastBeepRef.current = 0;
     }
-  }, [currentPhaseIndex, isRunning]);
+  }, [currentPhaseIndex]);
 
   const handleStart = async () => {
+    // Activar AudioContext en la interacción del usuario
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    
+    if (audioContextRef.current.state === 'suspended') {
+      await audioContextRef.current.resume();
+    }
+    
     if (!sessionId && user) {
       const { data } = await supabase
         .from("exercise_sessions")
@@ -194,6 +199,11 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
       }
     }
     setIsRunning(true);
+    
+    // Reproducir un pitido de prueba al iniciar
+    setTimeout(() => {
+      playBeep(800, 0.25);
+    }, 100);
   };
 
   const handlePause = () => {
