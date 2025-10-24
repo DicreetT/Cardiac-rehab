@@ -16,7 +16,7 @@ export default function Index() {
     
     if (trimmedCode === "IVÁN" || trimmedCode === "IVAN") {
       saveUserCode(trimmedCode);
-      navigate("/plans");
+      navigate("/auth");
     } else {
       setError("Código incorrecto. Por favor, intenta de nuevo.");
       setTimeout(() => setError(""), 3000);

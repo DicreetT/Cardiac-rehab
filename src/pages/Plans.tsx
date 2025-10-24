@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { plans } from "@/data/plans";
+import { useAuth } from "@/hooks/useAuth";
 import BubbleBackground from "@/components/BubbleBackground";
 import { clearUserCode } from "@/utils/userCode";
 
 export default function Plans() {
+  const { isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const [isShaking, setIsShaking] = useState(false);
 
@@ -18,7 +20,7 @@ export default function Plans() {
 
   const handleLogout = () => {
     clearUserCode();
-    navigate("/");
+    signOut();
   };
 
   return (
@@ -70,6 +72,14 @@ export default function Plans() {
           </div>
 
           <div className="flex gap-4 justify-center flex-wrap">
+            {isAdmin && (
+              <Link to="/admin">
+                <button className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-bubblegum text-lg">
+                  👑 Admin Dashboard
+                </button>
+              </Link>
+            )}
+            
             <button
               onClick={goToRandomPlan}
               className={`bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] font-bubblegum text-lg ${isShaking ? 'animate-shake' : ''}`}

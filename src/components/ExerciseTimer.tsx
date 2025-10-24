@@ -3,6 +3,8 @@ import { Play, Pause, RotateCcw, CheckCircle, Heart, AlertTriangle } from "lucid
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import bolitaHappy from "@/assets/bolita-happy.png";
 import bolitaZen from "@/assets/bolita-zen.png";
 import {
@@ -38,6 +40,8 @@ interface SOSRecord {
 }
 
 export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) {
+  const { user } = useAuth();
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [phaseTimeLeft, setPhaseTimeLeft] = useState(plan.phases[0].duration);
@@ -124,7 +128,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
             // Ejercicio completado
             setIsRunning(false);
             setIsCompleted(true);
-            saveSessionToLocalStorage();
+            saveSessionToDatabase();
             return 0;
           }
         }
@@ -155,7 +159,22 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     }
   }, [currentPhaseIndex, isRunning]);
 
-  const handleStart = () => {
+  const handleStart = async () => {
+    if (!sessionId && user) {
+      const { data } = await supabase
+        .from("exercise_sessions")
+        .insert({
+          user_id: user.id,
+          plan_slug: plan.slug,
+          plan_name: plan.name,
+        })
+        .select()
+        .single();
+      
+      if (data) {
+        setSessionId(data.id);
+      }
+    }
     setIsRunning(true);
   };
 
@@ -233,13 +252,19 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     setShowSOSDialog(true);
   };
 
-  const handleSaveSOS = () => {
-    if (currentSOSInput.trim()) {
+  const handleSaveSOS = async () => {
+    if (currentSOSInput.trim() && sessionId) {
       const newSOSRecord: SOSRecord = {
         phaseName: currentPhase.name,
         symptoms: currentSOSInput.trim(),
         timestamp: new Date().toISOString()
       };
+      
+      await supabase.from("sos_records").insert({
+        session_id: sessionId,
+        phase_name: newSOSRecord.phaseName,
+        symptoms: newSOSRecord.symptoms,
+      });
       
       setSOSRecords([...sosRecords, newSOSRecord]);
       setShowSOSDialog(false);
@@ -247,15 +272,25 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     }
   };
 
-  const saveSessionToLocalStorage = () => {
-    const sessionKey = `bolita-exercise-${plan.slug}-${new Date().toISOString().split('T')[0]}`;
-    const sessionData = {
-      planName: plan.name,
-      date: new Date().toISOString(),
-      records: hrRecords,
-      sosRecords: sosRecords
-    };
-    localStorage.setItem(sessionKey, JSON.stringify(sessionData));
+  const saveSessionToDatabase = async () => {
+    if (!sessionId) return;
+
+    await supabase
+      .from("exercise_sessions")
+      .update({ completed: true })
+      .eq("id", sessionId);
+
+    for (const record of hrRecords) {
+      await supabase.from("hr_records").insert({
+        session_id: sessionId,
+        phase_name: record.phaseName,
+        hr: record.hr,
+        systolic: record.systolic,
+        diastolic: record.diastolic,
+        target: record.target,
+        comment: record.comment,
+      });
+    }
   };
 
   const formatTime = (seconds: number) => {
