@@ -331,14 +331,14 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           )}
           
           {isRestPhase && (
-            <div className="mt-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-4">
+            <div className="mt-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg overflow-hidden">
               <img 
                 src={bolitaRest} 
                 alt="Bolita en meditación" 
-                className="w-64 h-64 mx-auto mb-3 rounded-xl object-cover border-4 border-white shadow-lg"
+                className="w-full h-96 object-cover"
               />
               {plan.restMessage && (
-                <p className="font-bubblegum text-green-800 text-lg">{plan.restMessage}</p>
+                <p className="font-bubblegum text-green-800 text-lg p-4">{plan.restMessage}</p>
               )}
             </div>
           )}
