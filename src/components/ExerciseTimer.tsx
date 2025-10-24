@@ -334,7 +334,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
               <img 
                 src={bolitaWorkout} 
                 alt="Bolita entrenando" 
-                className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-yellow-400 shadow-lg"
+                className="w-48 h-48 mx-auto rounded-full object-cover border-4 border-yellow-400 shadow-lg"
               />
             </div>
           )}
