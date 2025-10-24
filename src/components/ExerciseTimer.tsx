@@ -3,6 +3,7 @@ import { Play, Pause, RotateCcw, CheckCircle, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
+import bolitaDoctor from "@/assets/bolita-doctor.png";
 import {
   Dialog,
   DialogContent,
@@ -95,15 +96,17 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           const finishedPhase = plan.phases[currentPhaseIndex];
           const isSetPhase = finishedPhase.name.toLowerCase().startsWith('set') && 
                             finishedPhase.hrTarget;
+          const isWarmupPhase = finishedPhase.name.toLowerCase().includes('calentamiento') && 
+                                finishedPhase.hrTarget;
           
           if (currentPhaseIndex < plan.phases.length - 1) {
-            // Si terminó un set con meta de HR, pausar y pedir registro
-            if (isSetPhase) {
+            // Si terminó un set o calentamiento con meta de HR, pausar y pedir registro
+            if (isSetPhase || isWarmupPhase) {
               setIsRunning(false);
               setPendingPhaseForHR(currentPhaseIndex);
               setShowHRDialog(true);
             } else {
-              // Siguiente fase automática (para calentamiento, descansos, enfriamiento)
+              // Siguiente fase automática (para descansos, enfriamiento sin HR target)
               setCurrentPhaseIndex((idx) => idx + 1);
               return plan.phases[currentPhaseIndex + 1].duration;
             }
@@ -316,8 +319,13 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           )}
           
           {isRestPhase && plan.restMessage && (
-            <div className="mt-4 bg-blue-50 border-2 border-blue-300 rounded-lg p-3">
-              <p className="font-bubblegum text-blue-800">{plan.restMessage}</p>
+            <div className="mt-4 bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+              <img 
+                src={bolitaDoctor} 
+                alt="Bolita doctor" 
+                className="w-32 h-32 mx-auto mb-3 rounded-full object-cover border-4 border-white shadow-lg"
+              />
+              <p className="font-bubblegum text-blue-800 text-lg">{plan.restMessage}</p>
             </div>
           )}
         </div>
