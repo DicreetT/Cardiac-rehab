@@ -3,7 +3,7 @@ import { Play, Pause, RotateCcw, CheckCircle, Heart, AlertTriangle } from "lucid
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
-import bolitaWorkout from "@/assets/bolita-workout.png";
+import bolitaHappy from "@/assets/bolita-happy.png";
 import bolitaZen from "@/assets/bolita-zen.png";
 import {
   Dialog,
@@ -331,11 +331,11 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           </div>
           
           {isSetPhase && (
-            <div className="mb-4">
+            <div className="mt-4 mb-6 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-lg overflow-hidden p-4">
               <img 
-                src={bolitaWorkout} 
+                src={bolitaHappy} 
                 alt="Bolita entrenando" 
-                className="w-48 h-48 mx-auto rounded-full object-cover border-4 border-yellow-400 shadow-lg"
+                className="w-full h-80 object-contain"
               />
             </div>
           )}
