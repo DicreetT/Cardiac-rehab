@@ -3,19 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { plans } from "@/data/plans";
 import BubbleBackground from "@/components/BubbleBackground";
 import { clearUserCode } from "@/utils/userCode";
-import bolitaBeach from "@/assets/bolita-beach.png";
-import bolitaKeys from "@/assets/bolita-keys.png";
-import bolitaBike from "@/assets/bolita-bike.png";
-import bolitaMeditation from "@/assets/bolita-meditation.png";
-import bolitaVolvo from "@/assets/bolita-volvo.png";
-
-const imageMap: Record<string, string> = {
-  beach: bolitaBeach,
-  keys: bolitaKeys,
-  bike: bolitaBike,
-  meditation: bolitaMeditation,
-  volvo: bolitaVolvo,
-};
 
 export default function Plans() {
   const navigate = useNavigate();
@@ -60,7 +47,7 @@ export default function Plans() {
                 <div className="bg-white rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6 transform transition-all duration-300 hover:scale-105 hover:rotate-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                   <div className="aspect-square bg-gradient-to-br from-amber-100 to-yellow-100 rounded-xl mb-4 flex items-center justify-center border-2 border-black/10 overflow-hidden">
                     <img 
-                      src={imageMap[plan.image]} 
+                      src={plan.image} 
                       alt={plan.name}
                       className="w-full h-full object-cover"
                     />

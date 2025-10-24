@@ -1,3 +1,10 @@
+import paseoMarImg from "@/assets/paseo-por-el-mar.png";
+import bolitaLlavesImg from "@/assets/bolita-llaves.png";
+import cotilleoMontanaImg from "@/assets/cotilleo-montana.png";
+import sincroniaImg from "@/assets/sincronia-mente-corazon.png";
+import noDualidadImg from "@/assets/no-dualidad-cuesta-arriba.png";
+import volvoTallerImg from "@/assets/volvo-taller.png";
+
 export interface Phase {
   name: string;
   duration: number; // en segundos
@@ -35,7 +42,7 @@ export const plans: Plan[] = [
     focus: "Control del pulso sin forzar.",
     duration: "37 min",
     difficulty: "Principiante",
-    image: "beach",
+    image: paseoMarImg,
     hrRange: "70-85 lpm",
     restMessage: "Paras en un puesto de arepas a tomarte un juguito y recuperar fuerzas 🍍",
     phases: [
@@ -100,7 +107,7 @@ export const plans: Plan[] = [
     focus: "Aumentar fuerza muscular sin picos de TA.",
     duration: "26 min",
     difficulty: "Intermedio",
-    image: "keys",
+    image: bolitaLlavesImg,
     hrRange: "75-90 lpm",
     phases: [
       {
@@ -175,7 +182,7 @@ export const plans: Plan[] = [
     focus: "Alternar carga / descanso y sentir la variación natural.",
     duration: "28 min",
     difficulty: "Intermedio",
-    image: "bike",
+    image: cotilleoMontanaImg,
     hrRange: "70-85 lpm",
     phases: [
       {
@@ -237,7 +244,7 @@ export const plans: Plan[] = [
     focus: "Coherencia cardíaca y conciencia corporal.",
     duration: "28 min",
     difficulty: "Principiante",
-    image: "meditation",
+    image: sincroniaImg,
     hrRange: "65-75 lpm",
     phases: [
       {
@@ -299,7 +306,7 @@ export const plans: Plan[] = [
     focus: "Fortalecer sin rigidez, mantener eje corporal.",
     duration: "22 min",
     difficulty: "Intermedio",
-    image: "meditation",
+    image: noDualidadImg,
     hrRange: "70-85 lpm",
     phases: [
       {
@@ -351,7 +358,7 @@ export const plans: Plan[] = [
     focus: "Recuperar confianza y tolerancia al esfuerzo.",
     duration: "30 min",
     difficulty: "Intermedio",
-    image: "volvo",
+    image: volvoTallerImg,
     hrRange: "75-90 lpm",
     phases: [
       {
