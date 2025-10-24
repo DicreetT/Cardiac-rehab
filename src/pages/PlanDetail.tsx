@@ -53,29 +53,13 @@ export default function PlanDetail() {
 
           <div className="bg-white rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden mb-6">
             <div 
-              className="relative p-12 text-center border-b-2 border-black bg-cover bg-center min-h-[400px] flex items-center justify-center"
+              className="relative border-b-2 border-black bg-cover bg-center h-[400px]"
               style={{
                 backgroundImage: `url(${plan.image})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
               }}
             >
-              {/* Contenido */}
-              <div className="relative z-10">
-                <h1 className="font-caveat text-5xl sm:text-6xl font-bold text-white mb-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                  {plan.name}
-                </h1>
-                <p className="font-bubblegum text-lg text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{plan.description}</p>
-                
-                <div className="flex gap-3 justify-center mt-4">
-                  <span className="bg-white px-4 py-2 rounded-xl border-2 border-black font-bold text-sm">
-                    ⏱️ {plan.duration}
-                  </span>
-                  <span className="bg-white px-4 py-2 rounded-xl border-2 border-black font-bold text-sm">
-                    📊 {plan.difficulty}
-                  </span>
-                </div>
-              </div>
             </div>
 
             <div className="p-8">
