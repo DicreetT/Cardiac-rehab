@@ -15,7 +15,7 @@ interface Session {
   user: {
     full_name: string;
     email: string;
-  };
+  } | null;
   hr_records: Array<{
     phase_name: string;
     hr: number;
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
                   <div>
                     <CardTitle className="font-caveat text-2xl">{session.plan_name}</CardTitle>
                     <CardDescription className="font-bubblegum">
-                      Usuario: {session.user.full_name || session.user.email}
+                      Usuario: {session.user?.full_name || session.user?.email || 'Usuario desconocido'}
                     </CardDescription>
                     <p className="text-sm text-gray-600 mt-1">
                       {new Date(session.date).toLocaleDateString('es-ES', {
