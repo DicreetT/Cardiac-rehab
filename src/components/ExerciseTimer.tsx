@@ -22,6 +22,8 @@ interface ExerciseTimerProps {
 interface HRRecord {
   phaseName: string;
   hr: number;
+  systolic?: number; // Tensión arterial sistólica
+  diastolic?: number; // Tensión arterial diastólica
   target: string;
   comment?: string;
   timestamp: string;
@@ -35,6 +37,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   const [isCompleted, setIsCompleted] = useState(false);
   const [showHRDialog, setShowHRDialog] = useState(false);
   const [currentHRInput, setCurrentHRInput] = useState("");
+  const [currentSystolicInput, setCurrentSystolicInput] = useState("");
+  const [currentDiastolicInput, setCurrentDiastolicInput] = useState("");
   const [currentComment, setCurrentComment] = useState("");
   const [pendingPhaseForHR, setPendingPhaseForHR] = useState<number | null>(null);
   
@@ -155,6 +159,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     setShowHRDialog(false);
     setPendingPhaseForHR(null);
     setCurrentHRInput("");
+    setCurrentSystolicInput("");
+    setCurrentDiastolicInput("");
     setCurrentComment("");
     lastBeepRef.current = 0;
   };
@@ -165,6 +171,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
       const newRecord: HRRecord = {
         phaseName: phase.name,
         hr: parseInt(currentHRInput),
+        systolic: currentSystolicInput ? parseInt(currentSystolicInput) : undefined,
+        diastolic: currentDiastolicInput ? parseInt(currentDiastolicInput) : undefined,
         target: phase.hrTarget || "",
         comment: currentComment.trim() || undefined,
         timestamp: new Date().toISOString()
@@ -173,6 +181,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
       setHrRecords([...hrRecords, newRecord]);
       setShowHRDialog(false);
       setCurrentHRInput("");
+      setCurrentSystolicInput("");
+      setCurrentDiastolicInput("");
       setCurrentComment("");
       
       // Avanzar a siguiente fase
@@ -189,6 +199,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     if (pendingPhaseForHR !== null) {
       setShowHRDialog(false);
       setCurrentHRInput("");
+      setCurrentSystolicInput("");
+      setCurrentDiastolicInput("");
       setCurrentComment("");
       
       // Avanzar a siguiente fase sin registro
@@ -374,7 +386,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="hr-input">Frecuencia Cardíaca (lpm)</Label>
+              <Label htmlFor="hr-input">Frecuencia Cardíaca (lpm) *</Label>
               <Input
                 id="hr-input"
                 type="number"
@@ -386,6 +398,40 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                 max="200"
               />
             </div>
+            
+            <div>
+              <Label className="mb-2 block">Tensión Arterial (opcional)</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="systolic-input" className="text-xs text-gray-600">Sistólica</Label>
+                  <Input
+                    id="systolic-input"
+                    type="number"
+                    value={currentSystolicInput}
+                    onChange={(e) => setCurrentSystolicInput(e.target.value)}
+                    placeholder="120"
+                    className="mt-1"
+                    min="70"
+                    max="200"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="diastolic-input" className="text-xs text-gray-600">Diastólica</Label>
+                  <Input
+                    id="diastolic-input"
+                    type="number"
+                    value={currentDiastolicInput}
+                    onChange={(e) => setCurrentDiastolicInput(e.target.value)}
+                    placeholder="80"
+                    className="mt-1"
+                    min="40"
+                    max="130"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Formato: sistólica / diastólica</p>
+            </div>
+            
             <div>
               <Label htmlFor="comment-input">Comentario (opcional)</Label>
               <Textarea
@@ -432,6 +478,11 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                   <div className="text-right">
                     <div className="text-2xl font-bold text-red-600">{record.hr} lpm</div>
                     <div className="text-xs text-gray-600">Meta: {record.target}</div>
+                    {(record.systolic || record.diastolic) && (
+                      <div className="text-sm font-semibold text-blue-600 mt-1">
+                        TA: {record.systolic || '?'}/{record.diastolic || '?'} mmHg
+                      </div>
+                    )}
                   </div>
                 </div>
                 {record.comment && (

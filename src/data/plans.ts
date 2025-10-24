@@ -41,40 +41,40 @@ export const plans: Plan[] = [
     phases: [
       {
         name: "Calentamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR <70% del rango, TA estable",
         description: "Sin resistencia, solo fluir"
       },
       {
         name: "Set 1",
-        duration: 540,
+        duration: 6,
         intensity: "leve",
         hrTarget: "HR baja, meta entrar en ritmo",
         description: "Sentir calor muscular"
       },
       {
         name: "Descanso 1",
-        duration: 180,
+        duration: 6,
         intensity: "pausa",
         description: '"Juguito de piña 🍍, hombros sueltos."'
       },
       {
         name: "Set 2",
-        duration: 540,
+        duration: 6,
         intensity: "moderada",
         hrTarget: "HR media (≈80 lpm)",
         description: "Moderado, respirar 4–4"
       },
       {
         name: "Descanso 2",
-        duration: 180,
+        duration: 6,
         intensity: "pausa",
         description: '"El mar suena más cerca."'
       },
       {
         name: "Set 3",
-        duration: 540,
+        duration: 6,
         intensity: "leve",
         hrTarget: "HR baja, pitido cada 30 s",
         description: "Levantarse 2–3 s cada aviso",
@@ -83,7 +83,7 @@ export const plans: Plan[] = [
       },
       {
         name: "Enfriamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Respirar 4s in / 4s out"
@@ -105,60 +105,60 @@ export const plans: Plan[] = [
     phases: [
       {
         name: "Calentamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja, TA estable",
         description: "Pedaleo sin carga"
       },
       {
         name: "Set 1",
-        duration: 360,
+        duration: 6,
         intensity: "leve-moderada",
         hrTarget: "HR baja–media, TA baja",
         description: '"Pedalea sin estrés, siente el suelo."'
       },
       {
         name: "Descanso 1",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: "Respirar 3–5"
       },
       {
         name: "Set 2",
-        duration: 180,
+        duration: 6,
         intensity: "moderada-alta",
         hrTarget: "HR media–alta, TA < techo",
         description: 'Aumenta resistencia: "Empuja con las piernas, hombros relajados."'
       },
       {
         name: "Descanso 2",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: "Respiración 4s in / 4s out"
       },
       {
         name: "Set 3",
-        duration: 180,
+        duration: 6,
         intensity: "moderada-alta",
         hrTarget: "HR media–alta",
         description: 'Repite fuerza: "Solo las piernas trabajan."'
       },
       {
         name: "Descanso 3",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: '"Te limpias el sudor. Todo va bien."'
       },
       {
         name: "Set 4",
-        duration: 360,
+        duration: 6,
         intensity: "leve",
         hrTarget: "HR baja",
         description: "Sin resistencia. Respiración especial: 6s inhalar, 2s pausa, 6s exhalar, 2s pausa."
       },
       {
         name: "Enfriamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Respiración 6–2–6–2. Sentir latidos calmos."
@@ -180,47 +180,47 @@ export const plans: Plan[] = [
     phases: [
       {
         name: "Calentamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Suave, respirar 5s in / 5s out"
       },
       {
         name: "Set 1",
-        duration: 480,
+        duration: 6,
         intensity: "leve-moderada",
         hrTarget: "HR media",
         description: "Coherencia (respiración guiada)"
       },
       {
         name: "Descanso 1",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: '"Siente los latidos en tus manos."'
       },
       {
         name: "Set 2",
-        duration: 480,
+        duration: 6,
         intensity: "moderada",
         hrTarget: "HR media",
         description: "Moderado, mantén respiración constante"
       },
       {
         name: "Descanso 2",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: '"Afloja el cuello."'
       },
       {
         name: "Set 3",
-        duration: 360,
+        duration: 6,
         intensity: "leve",
         hrTarget: "HR baja",
         description: "Escaneo corporal: siente pies, piernas, abdomen, brazos, cara."
       },
       {
         name: "Enfriamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Respira 4–4, escucha tu corazón."
@@ -242,47 +242,47 @@ export const plans: Plan[] = [
     phases: [
       {
         name: "Calentamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Suave, respirar 5s in / 5s out"
       },
       {
         name: "Set 1",
-        duration: 480,
+        duration: 6,
         intensity: "muy leve",
         hrTarget: "HR baja",
         description: "Coherencia (respiración guiada)"
       },
       {
         name: "Descanso",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: '"Siente los latidos en tus manos."'
       },
       {
         name: "Set 2",
-        duration: 480,
+        duration: 6,
         intensity: "leve",
         hrTarget: "HR media",
         description: "Moderado, mantén respiración constante"
       },
       {
         name: "Descanso 2",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: '"Afloja el cuello."'
       },
       {
         name: "Set 3",
-        duration: 360,
+        duration: 6,
         intensity: "muy leve",
         hrTarget: "HR baja",
         description: "Escaneo corporal: siente pies, piernas, abdomen, brazos, cara."
       },
       {
         name: "Enfriamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Respira 4–4, escucha tu corazón."
@@ -304,28 +304,28 @@ export const plans: Plan[] = [
     phases: [
       {
         name: "Calentamiento",
-        duration: 360,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Siente pelvis estable, manos ligeras"
       },
       {
         name: "Set 1",
-        duration: 240,
+        duration: 6,
         intensity: "moderada",
         hrTarget: "HR media",
         description: "Subida controlada: pelvis neutra, mirada al frente"
       },
       {
         name: "Set 2",
-        duration: 120,
+        duration: 6,
         intensity: "leve",
         hrTarget: "HR baja",
         description: "Llano, hombros sueltos"
       },
       {
         name: "Set 3",
-        duration: 240,
+        duration: 6,
         intensity: "moderada",
         hrTarget: "HR media",
         description: "Subida con pitido cada 60 s → revisa postura: columna, hombros, muñecas, respiración.",
@@ -334,7 +334,7 @@ export const plans: Plan[] = [
       },
       {
         name: "Enfriamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Cierra ojos, respira 4–6, siente eje central"
@@ -356,40 +356,40 @@ export const plans: Plan[] = [
     phases: [
       {
         name: "Calentamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Sin carga, respirar 4–4"
       },
       {
         name: "Set 1",
-        duration: 420,
+        duration: 6,
         intensity: "leve-moderada",
         hrTarget: "HR media–baja",
         description: "Pedal fluido, ritmo cómodo"
       },
       {
         name: "Descanso 1",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: "Hidratación"
       },
       {
         name: "Set 2",
-        duration: 420,
+        duration: 6,
         intensity: "moderada",
         hrTarget: "HR media",
         description: "Mantén ritmo constante, respiración rítmica"
       },
       {
         name: "Descanso 2",
-        duration: 120,
+        duration: 6,
         intensity: "pausa",
         description: '"Escucha tu pulso, no tu mente."'
       },
       {
         name: "Set 3",
-        duration: 420,
+        duration: 6,
         intensity: "moderada-alta",
         hrTarget: "HR media–alta",
         description: "Pequeños sprints de 10 s cada 90 s → pitido suave",
@@ -398,7 +398,7 @@ export const plans: Plan[] = [
       },
       {
         name: "Enfriamiento",
-        duration: 300,
+        duration: 6,
         intensity: "sin resistencia",
         hrTarget: "HR baja",
         description: "Respiración triangular: 4 s inhalar, 4 s retener, 4 s exhalar"
