@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, CheckCircle, Heart } from "lucide-react";
+import { Play, Pause, RotateCcw, CheckCircle, Heart, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
@@ -24,10 +24,16 @@ interface ExerciseTimerProps {
 interface HRRecord {
   phaseName: string;
   hr: number;
-  systolic?: number; // Tensión arterial sistólica
-  diastolic?: number; // Tensión arterial diastólica
+  systolic?: number;
+  diastolic?: number;
   target: string;
   comment?: string;
+  timestamp: string;
+}
+
+interface SOSRecord {
+  phaseName: string;
+  symptoms: string;
   timestamp: string;
 }
 
@@ -36,12 +42,15 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [phaseTimeLeft, setPhaseTimeLeft] = useState(plan.phases[0].duration);
   const [hrRecords, setHrRecords] = useState<HRRecord[]>([]);
+  const [sosRecords, setSOSRecords] = useState<SOSRecord[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
   const [showHRDialog, setShowHRDialog] = useState(false);
+  const [showSOSDialog, setShowSOSDialog] = useState(false);
   const [currentHRInput, setCurrentHRInput] = useState("");
   const [currentSystolicInput, setCurrentSystolicInput] = useState("");
   const [currentDiastolicInput, setCurrentDiastolicInput] = useState("");
   const [currentComment, setCurrentComment] = useState("");
+  const [currentSOSInput, setCurrentSOSInput] = useState("");
   const [pendingPhaseForHR, setPendingPhaseForHR] = useState<number | null>(null);
   
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -159,13 +168,16 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     setCurrentPhaseIndex(0);
     setPhaseTimeLeft(plan.phases[0].duration);
     setHrRecords([]);
+    setSOSRecords([]);
     setIsCompleted(false);
     setShowHRDialog(false);
+    setShowSOSDialog(false);
     setPendingPhaseForHR(null);
     setCurrentHRInput("");
     setCurrentSystolicInput("");
     setCurrentDiastolicInput("");
     setCurrentComment("");
+    setCurrentSOSInput("");
     lastBeepRef.current = 0;
   };
 
@@ -217,12 +229,31 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     }
   };
 
+  const handleOpenSOS = () => {
+    setShowSOSDialog(true);
+  };
+
+  const handleSaveSOS = () => {
+    if (currentSOSInput.trim()) {
+      const newSOSRecord: SOSRecord = {
+        phaseName: currentPhase.name,
+        symptoms: currentSOSInput.trim(),
+        timestamp: new Date().toISOString()
+      };
+      
+      setSOSRecords([...sosRecords, newSOSRecord]);
+      setShowSOSDialog(false);
+      setCurrentSOSInput("");
+    }
+  };
+
   const saveSessionToLocalStorage = () => {
     const sessionKey = `bolita-exercise-${plan.slug}-${new Date().toISOString().split('T')[0]}`;
     const sessionData = {
       planName: plan.name,
       date: new Date().toISOString(),
-      records: hrRecords
+      records: hrRecords,
+      sosRecords: sosRecords
     };
     localStorage.setItem(sessionKey, JSON.stringify(sessionData));
   };
@@ -236,6 +267,9 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   const isRestPhase = currentPhase.name.toLowerCase().includes('descanso') || 
                       currentPhase.intensity === 'pausa';
   const isSetPhase = currentPhase.name.toLowerCase().startsWith('set');
+  const isWarmupPhase = currentPhase.name.toLowerCase().includes('calentamiento');
+  const isCooldownPhase = currentPhase.name.toLowerCase().includes('enfriamiento');
+  const showSOSButton = isSetPhase || isWarmupPhase || isCooldownPhase;
 
   return (
     <div className="space-y-6">
@@ -353,7 +387,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         </div>
 
         {/* Controles */}
-        <div className="flex gap-3 justify-center">
+        <div className="flex gap-3 justify-center flex-wrap">
           {!isRunning ? (
             <Button
               onClick={handleStart}
@@ -385,8 +419,70 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
             <RotateCcw className="mr-2" />
             Reiniciar
           </Button>
+
+          {showSOSButton && (
+            <Button
+              onClick={handleOpenSOS}
+              variant="destructive"
+              size="lg"
+              className="font-bubblegum text-lg bg-red-600 hover:bg-red-700"
+            >
+              <AlertTriangle className="mr-2" />
+              SOS
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Dialog SOS */}
+      <Dialog open={showSOSDialog} onOpenChange={setShowSOSDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-caveat text-3xl text-red-600">
+              <AlertTriangle className="inline-block mr-2" />
+              Registro SOS
+            </DialogTitle>
+            <DialogDescription>
+              Describe cómo te sientes en este momento. Esto nos ayudará a monitorear tu bienestar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="sos-input">Síntomas o sensaciones</Label>
+              <Textarea
+                id="sos-input"
+                value={currentSOSInput}
+                onChange={(e) => setCurrentSOSInput(e.target.value)}
+                placeholder="Ej: Siento palpitaciones, opresión en el pecho, mareo, sofoco..."
+                className="mt-1"
+                rows={5}
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                💡 Ejemplos: palpitaciones, opresión, mareo, sofoco, falta de aire, dolor en el pecho
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleSaveSOS}
+              disabled={!currentSOSInput.trim()}
+              className="flex-1 bg-red-600 hover:bg-red-700"
+            >
+              Guardar registro
+            </Button>
+            <Button
+              onClick={() => {
+                setShowSOSDialog(false);
+                setCurrentSOSInput("");
+              }}
+              variant="outline"
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog para registrar FC al finalizar set */}
       <Dialog open={showHRDialog} onOpenChange={setShowHRDialog}>
@@ -531,6 +627,39 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                 </p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Resumen de registros SOS */}
+      {sosRecords.length > 0 && (
+        <div className="bg-red-50 p-6 rounded-xl border-2 border-red-400 shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]">
+          <h3 className="font-caveat text-2xl font-bold mb-4 flex items-center gap-2 text-red-700">
+            <AlertTriangle className="text-red-600" />
+            Registros SOS
+          </h3>
+          <div className="space-y-3">
+            {sosRecords.map((record, idx) => (
+              <div key={idx} className="bg-white p-4 rounded-lg border-2 border-red-300">
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-bold text-gray-900">{record.phaseName}</span>
+                  <div className="text-xs text-gray-600">
+                    {new Date(record.timestamp).toLocaleTimeString('es-ES', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </div>
+                </div>
+                <p className="text-sm text-gray-700 bg-red-50 p-3 rounded border border-red-200">
+                  {record.symptoms}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 p-3 bg-red-100 rounded-lg border border-red-300">
+            <p className="text-sm text-red-800 font-semibold">
+              ⚠️ Si los síntomas persisten o empeoran, detén el ejercicio y consulta con tu médico.
+            </p>
           </div>
         </div>
       )}
