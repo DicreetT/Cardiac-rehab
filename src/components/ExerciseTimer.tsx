@@ -369,7 +369,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
               <img 
                 src={bolitaZen} 
                 alt="Bolita en meditación" 
-                className="w-full h-96 object-cover"
+                className="w-full h-96 object-cover object-top"
               />
               {plan.restMessage && (
                 <p className="font-bubblegum text-green-800 text-lg p-4">{plan.restMessage}</p>
