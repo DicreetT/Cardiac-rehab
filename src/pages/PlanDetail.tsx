@@ -52,24 +52,37 @@ export default function PlanDetail() {
           </Link>
 
           <div className="bg-white rounded-2xl border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden mb-6">
-            <div className="bg-gradient-to-br from-amber-100 to-yellow-100 p-8 text-center border-b-2 border-black">
-              <img 
-                src={bolitaHappy} 
-                alt="Bolita feliz" 
-                className="w-32 h-32 mx-auto mb-4 rounded-full object-cover border-4 border-white shadow-lg"
-              />
-              <h1 className="font-caveat text-5xl sm:text-6xl font-bold text-gray-900 mb-2">
-                {plan.name}
-              </h1>
-              <p className="font-bubblegum text-lg text-gray-700">{plan.description}</p>
+            <div 
+              className="relative p-8 text-center border-b-2 border-black bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${plan.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              {/* Overlay semi-transparente para legibilidad */}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/70 to-white/60 backdrop-blur-[2px]"></div>
               
-              <div className="flex gap-3 justify-center mt-4">
-                <span className="bg-white px-4 py-2 rounded-xl border-2 border-black font-bold text-sm">
-                  ⏱️ {plan.duration}
-                </span>
-                <span className="bg-white px-4 py-2 rounded-xl border-2 border-black font-bold text-sm">
-                  📊 {plan.difficulty}
-                </span>
+              {/* Contenido */}
+              <div className="relative z-10">
+                <img 
+                  src={bolitaHappy} 
+                  alt="Bolita feliz" 
+                  className="w-32 h-32 mx-auto mb-4 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+                <h1 className="font-caveat text-5xl sm:text-6xl font-bold text-gray-900 mb-2 drop-shadow-sm">
+                  {plan.name}
+                </h1>
+                <p className="font-bubblegum text-lg text-gray-800 drop-shadow-sm">{plan.description}</p>
+                
+                <div className="flex gap-3 justify-center mt-4">
+                  <span className="bg-white px-4 py-2 rounded-xl border-2 border-black font-bold text-sm">
+                    ⏱️ {plan.duration}
+                  </span>
+                  <span className="bg-white px-4 py-2 rounded-xl border-2 border-black font-bold text-sm">
+                    📊 {plan.difficulty}
+                  </span>
+                </div>
               </div>
             </div>
 
