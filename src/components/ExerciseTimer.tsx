@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/data/plans";
 import bolitaRest from "@/assets/bolita-rest.png";
+import bolitaWorkout from "@/assets/bolita-workout.png";
 import {
   Dialog,
   DialogContent,
@@ -234,6 +235,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
 
   const isRestPhase = currentPhase.name.toLowerCase().includes('descanso') || 
                       currentPhase.intensity === 'pausa';
+  const isSetPhase = currentPhase.name.toLowerCase().startsWith('set');
 
   return (
     <div className="space-y-6">
@@ -293,6 +295,16 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           }`}>
             <h2 className="font-caveat text-4xl font-bold">{currentPhase.name}</h2>
           </div>
+          
+          {isSetPhase && (
+            <div className="mb-4">
+              <img 
+                src={bolitaWorkout} 
+                alt="Bolita entrenando" 
+                className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-yellow-400 shadow-lg"
+              />
+            </div>
+          )}
           
           <div className="text-6xl font-bold font-mono mb-2 text-gray-900">
             {formatTime(phaseTimeLeft)}
