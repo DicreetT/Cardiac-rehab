@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Circle } from "lucide-react";
 import BubbleBackground from "@/components/BubbleBackground";
-import bolitaZen from "@/assets/bolita-zen.png";
+import bolitaDoctorCalendar from "@/assets/bolita-doctor-calendar.png";
 
 export default function Calendar() {
   const [completedDays, setCompletedDays] = useState<string[]>([]);
@@ -56,9 +56,9 @@ export default function Calendar() {
 
           <div className="text-center mb-8">
             <img 
-              src={bolitaZen} 
-              alt="Bolita zen" 
-              className="w-32 h-32 mx-auto mb-4 rounded-full object-cover border-4 border-white shadow-lg animate-float"
+              src={bolitaDoctorCalendar} 
+              alt="Dr. Bolita" 
+              className="w-40 h-40 mx-auto mb-4 rounded-2xl object-cover border-4 border-white shadow-lg animate-float"
             />
             <div className="inline-block bg-yellow-400 px-5 py-2 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-3">
               <h1 className="font-caveat text-5xl font-bold text-black">Tu Progreso</h1>
