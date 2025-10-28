@@ -6,12 +6,12 @@ export default function Index() {
   const navigate = useNavigate();
 
   return (
-    <div className="h-screen w-full bg-background text-foreground">
-      <section className="h-screen bg-cover bg-center bg-no-repeat relative overflow-hidden" style={{ backgroundImage: 'url(/bolita/home.png)' }}>
+    <div className="min-h-screen w-full bg-background text-foreground">
+      <section className="min-h-screen bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/bolita/home.png)' }}>
         <BubbleBackground count={6} minSize={40} maxSize={100} opacity="bg-white/20" />
 
-        <main className="h-full mx-auto max-w-7xl p-6 sm:p-10 relative z-10">
-          <div className="flex h-full items-center justify-center">
+        <main className="mx-auto max-w-7xl p-6 sm:p-10 relative z-10">
+          <div className="flex min-h-screen items-center justify-center py-8">
             <div className="max-w-3xl text-center">
               <div className="mb-2 inline-block rotate-[-4deg] bg-yellow-400 px-4 py-1 rounded-lg shadow-lg transform hover:rotate-[4deg] transition-transform duration-300">
                 <span className="font-bubblegum text-xl text-black">
