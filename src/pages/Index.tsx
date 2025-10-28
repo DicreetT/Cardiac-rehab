@@ -37,12 +37,12 @@ export default function Index() {
                 </span>
               </div>
               
-              <h1 className="font-caveat text-6xl sm:text-7xl font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] animate-pulse-subtle text-white mb-4">
-                Organización de Salud Bolita
+              <h1 className="font-caveat text-5xl sm:text-6xl font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] animate-pulse-subtle text-white mb-4">
+                Rehabilitación cardiaca para volver a tu vida con seguridad
               </h1>
               
-              <p className="mt-4 text-xl text-white drop-shadow-md bg-black/30 backdrop-blur-sm rounded-xl p-4 mb-6">
-                Bienvenido/a a la Organización de Salud Bolita. Estamos especializados en acompañar a los papás en su camino hacia una salud próspera y nos alegra que te unas a nuestro programa.
+              <p className="mt-4 text-lg sm:text-xl text-white drop-shadow-md bg-black/40 backdrop-blur-sm rounded-xl p-4 mb-6">
+                Acompañamiento de especialistas: ejercicio, educación y apoyo emocional para ti y tu familia.
               </p>
 
               <div className="bg-white/60 backdrop-blur-md rounded-2xl p-8 shadow-2xl border-2 border-black/10 max-w-md mx-auto">
@@ -54,7 +54,7 @@ export default function Index() {
                 
                 <div className="bg-primary/10 p-4 rounded-lg border border-primary/20 mb-6">
                   <p className="text-sm text-gray-700">
-                    Introduce el código que tu doctora asignada para papás, <span className="font-bold">Thalia</span>, te entregó para obtener acceso y empezar a ponerte realmente en forma, aquí:
+                    Introduce el código que te entregó tu profesional de Bolita para acceder al programa.
                   </p>
                 </div>
 
@@ -75,13 +75,44 @@ export default function Index() {
                     type="submit"
                     className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg border-2 border-black/10 transition-all duration-300 hover:scale-105"
                   >
-                    ¡Entrar!
+                    Validar mi código
                   </button>
                 </form>
 
-                <p className="text-xs text-gray-600 mt-4">
-                  * Thalia podrá seguir tu progreso y ayudarte durante todo el proceso.
-                </p>
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-xs text-gray-700 leading-relaxed">
+                    Tus datos se tratan con confidencialidad. Esta información es educativa y no sustituye tu consulta médica.
+                    Si presentas dolor en el pecho, falta de aire intensa o mareo, acude a urgencias.
+                  </p>
+                </div>
+
+                <div className="mt-6 p-4 bg-white/80 rounded-lg border border-gray-200">
+                  <h3 className="font-bold text-gray-800 mb-3 text-sm">Qué esperar</h3>
+                  <ol className="text-xs text-gray-700 space-y-2 list-decimal list-inside">
+                    <li>Valoración inicial</li>
+                    <li>Plan de ejercicio adaptado y monitorizado</li>
+                    <li>Educación (medicación, nutrición, estrés)</li>
+                    <li>Seguimiento y alta con plan en casa</li>
+                  </ol>
+                </div>
+
+                <div className="mt-6 p-4 bg-white/80 rounded-lg border border-gray-200">
+                  <h3 className="font-bold text-gray-800 mb-3 text-sm">Preguntas frecuentes</h3>
+                  <div className="space-y-3 text-xs text-gray-700">
+                    <div>
+                      <p className="font-semibold">¿Es seguro?</p>
+                      <p>Sí. Empezamos con una valoración y adaptamos la intensidad.</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">¿Cuánto dura?</p>
+                      <p>8–12 semanas, 2–3 sesiones por semana.</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">¿Quién me acompaña?</p>
+                      <p>Un equipo de cardiología, fisioterapia, enfermería, psicología y nutrición.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
