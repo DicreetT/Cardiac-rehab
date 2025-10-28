@@ -1,4 +1,4 @@
-import paseoMarImg from "@/assets/paseo-por-el-mar.png";
+import paseoMarImg from "@/assets/bolita-bike-beach.png";
 import bolitaLlavesImg from "@/assets/bolita-llaves.png";
 import cotilleoMontanaImg from "@/assets/cotilleo-montana.png";
 import sincroniaImg from "@/assets/sincronia-mente-corazon.png";
