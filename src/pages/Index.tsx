@@ -61,7 +61,7 @@ export default function Index() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <input
                     type="text"
-                    placeholder=""
+                    placeholder="Código de acceso"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     className="w-full px-4 py-3 text-center text-lg border-2 border-black/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
@@ -75,7 +75,7 @@ export default function Index() {
                     type="submit"
                     className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg border-2 border-black/10 transition-all duration-300 hover:scale-105"
                   >
-                    Entrar
+                    Validar mi código
                   </button>
                 </form>
 
