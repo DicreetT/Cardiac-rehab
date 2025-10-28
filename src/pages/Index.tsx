@@ -1,27 +1,9 @@
-import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveUserCode } from "@/utils/userCode";
 import BubbleBackground from "@/components/BubbleBackground";
 import bolitaDoctor from "@/assets/bolita-doctor.png";
 
 export default function Index() {
-  const [code, setCode] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    
-    const trimmedCode = code.trim().toUpperCase();
-    
-    if (trimmedCode === "IVÁN" || trimmedCode === "IVAN") {
-      saveUserCode(trimmedCode);
-      navigate("/auth");
-    } else {
-      setError("Código incorrecto. Por favor, intenta de nuevo.");
-      setTimeout(() => setError(""), 3000);
-    }
-  };
 
   return (
     <div className="h-screen w-full bg-background text-foreground">
@@ -51,33 +33,6 @@ export default function Index() {
                   alt="Bolita como doctora" 
                   className="w-32 h-32 mx-auto mb-6 rounded-full object-cover border-4 border-primary/20 shadow-lg"
                 />
-                
-                <div className="bg-primary/10 p-4 rounded-lg border border-primary/20 mb-6">
-                  <p className="text-sm text-gray-700">
-                    Introduce el código que te entregó tu profesional de Bolita para acceder al programa.
-                  </p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Código de acceso"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    className="w-full px-4 py-3 text-center text-lg border-2 border-black/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                  />
-                  
-                  {error && (
-                    <p className="text-sm text-red-600 animate-shake">{error}</p>
-                  )}
-                  
-                  <button 
-                    type="submit"
-                    className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg border-2 border-black/10 transition-all duration-300 hover:scale-105"
-                  >
-                    Validar mi código
-                  </button>
-                </form>
 
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-xs text-gray-700 leading-relaxed">
@@ -96,23 +51,12 @@ export default function Index() {
                   </ol>
                 </div>
 
-                <div className="mt-6 p-4 bg-white/80 rounded-lg border border-gray-200">
-                  <h3 className="font-bold text-gray-800 mb-3 text-sm">Preguntas frecuentes</h3>
-                  <div className="space-y-3 text-xs text-gray-700">
-                    <div>
-                      <p className="font-semibold">¿Es seguro?</p>
-                      <p>Sí. Empezamos con una valoración y adaptamos la intensidad.</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">¿Cuánto dura?</p>
-                      <p>8–12 semanas, 2–3 sesiones por semana.</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">¿Quién me acompaña?</p>
-                      <p>Un equipo de cardiología, fisioterapia, enfermería, psicología y nutrición.</p>
-                    </div>
-                  </div>
-                </div>
+                <button 
+                  onClick={() => navigate("/auth")}
+                  className="w-full mt-6 bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg border-2 border-black/10 transition-all duration-300 hover:scale-105"
+                >
+                  ¡Vamos allá!
+                </button>
               </div>
             </div>
           </div>
