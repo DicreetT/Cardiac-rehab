@@ -39,39 +39,39 @@ export const plans: Plan[] = [
     description: "Pedalea suave como si estuvieras junto al mar",
     intro: '"La brisa trae calma. Hoy pedaleas como si el océano respirara contigo."',
     objective: "Recuperar movilidad, ritmo, respiración constante.",
-    focus: "Control del pulso sin forzar.",
+    focus: "Subir pulsaciones sin forzar el corazon.",
     duration: "37 min",
     difficulty: "Principiante",
     image: paseoMarImg,
-    hrRange: "70-85 lpm",
-    restMessage: "Paras en un puesto de arepas a tomarte un juguito y recuperar fuerzas 🍍",
+    hrRange: "60-70 lpm",
+    restMessage: "Paras en un chiringuito a tomarte un juguo y recuperar fuerzas 🍍",
     phases: [
       {
         name: "Calentamiento",
         duration: 300,
         intensity: "sin resistencia",
-        hrTarget: "HR <70% del rango, TA estable",
+        hrTarget: "HR < 60 lpm, TA estable",
         description: "Sin resistencia, solo fluir"
       },
       {
         name: "Set 1",
         duration: 540,
-        intensity: "leve",
-        hrTarget: "HR baja, meta entrar en ritmo",
+        intensity: "resistencia leve (el pedal no va solo pero la fuerza no se enfoca en moverlo)",
+        hrTarget: "HR > 50, la meta entrar en un ritmo constante. tension sistolica entre 120-30",
         description: "Sentir calor muscular"
       },
       {
         name: "Descanso 1",
         duration: 180,
         intensity: "pausa",
-        description: '"Juguito de piña 🍍, hombros sueltos."'
+        description: '"Juguito de piña 🍍, recierda mantener los hombros sueltos mientras pedaleas."'
       },
       {
         name: "Set 2",
         duration: 540,
-        intensity: "moderada",
-        hrTarget: "HR media (≈80 lpm)",
-        description: "Moderado, respirar 4–4"
+        intensity: "aumentamos minimamnete la resistencia",
+        hrTarget: "HR > 60 con tensiones < 130 sistolica",
+        description: "durante este set respira 4 secs in, 4 secs out"
       },
       {
         name: "Descanso 2",
@@ -82,9 +82,9 @@ export const plans: Plan[] = [
       {
         name: "Set 3",
         duration: 540,
-        intensity: "leve",
-        hrTarget: "HR baja, pitido cada 30 s",
-        description: "Levantarse 2–3 s cada aviso",
+        intensity: "mantenemos la resisitencia igual que el set anterior",
+        hrTarget: "HR > 50 pero < 70 lpm, tension < 130 sistolica",
+        description: "Levantarse 2–3 s cada 30 secs sobre los pedales, siguiendo los pitidos. este ejercicio no debe suponer un esfuerzo extremo, hacerlo con tranquilidad y hasta donde se pueda manteniendo los rangos meta",
         beepInterval: 30,
         beepAction: "¡Levantarse 2-3 segundos!"
       },
@@ -92,7 +92,7 @@ export const plans: Plan[] = [
         name: "Enfriamiento",
         duration: 300,
         intensity: "sin resistencia",
-        hrTarget: "HR baja",
+        hrTarget: "HR < 60 y >50",
         description: "Respirar 4s in / 4s out"
       }
     ]
