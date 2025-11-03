@@ -20,35 +20,80 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // 🧭 Manejo de sesión y rol
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        
-        if (currentSession?.user) {
-          setTimeout(() => {
-            checkAdminStatus(currentSession.user.id);
-          }, 0);
-        } else {
-          setIsAdmin(false);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, currentSession) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+
+      if (currentSession?.user) {
+        setTimeout(() => {
+          checkAdminStatus(currentSession.user.id);
+        }, 0);
+      } else {
+        setIsAdmin(false);
       }
-    );
+    });
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-      
+
       if (currentSession?.user) {
         checkAdminStatus(currentSession.user.id);
       }
-      
+
       setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // 🌱 Sincroniza o crea el perfil si falta
+  useEffect(() => {
+    const syncProfile = async () => {
+      try {
+        if (!user) return;
+
+        // ¿Ya existe fila en profiles con este id?
+        const { data: existing, error: selErr } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("id", user.id)
+          .single();
+
+        // PGRST116 = "no rows found", la ignoramos
+        if (selErr && selErr.code !== "PGRST116") {
+          console.warn("Error consultando profiles:", selErr);
+        }
+
+        if (!existing) {
+          const fullName =
+            (user.user_metadata &&
+              (user.user_metadata.full_name || user.user_metadata.name)) ||
+            null;
+
+          const { error: insErr } = await supabase.from("profiles").insert({
+            id: user.id,
+            email: user.email!,
+            full_name: fullName,
+          });
+
+          if (insErr) {
+            console.warn("No se pudo crear profiles en sync:", insErr);
+          } else {
+            console.log("Perfil creado para:", user.email);
+          }
+        }
+      } catch (e) {
+        console.warn("syncProfile exception:", e);
+      }
+    };
+
+    syncProfile();
+  }, [user]);
 
   const checkAdminStatus = async (userId: string) => {
     const { data } = await supabase
@@ -57,7 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .eq("user_id", userId)
       .eq("role", "admin")
       .maybeSingle();
-    
+
     setIsAdmin(!!data);
   };
 
@@ -67,7 +112,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, isLoading, signOut }}>
+    <AuthContext.Provider
+      value={{ user, session, isAdmin, isLoading, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
