@@ -17,56 +17,60 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+  try {
+    if (isLogin) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
 
-        if (error) throw error;
-
-        toast({
-          title: "¡Bienvenido!",
-          description: "Has iniciado sesión correctamente",
-        });
-        
-        navigate("/plans");
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-            },
-            emailRedirectTo: `${window.location.origin}/plans`,
-          },
-        });
-
-        if (error) throw error;
-
-        toast({
-          title: "¡Registro exitoso!",
-          description: "Tu cuenta ha sido creada. Iniciando sesión...",
-        });
-        
-        navigate("/plans");
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
+      toast({ title: "¡Bienvenido!", description: "Has iniciado sesión correctamente" });
+      navigate("/plans");
+    } else {
+      // 1) Crear usuario en Auth con metadata (full_name)
+      const { data: signUpData, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: `${window.location.origin}/plans`,
+        },
       });
-    } finally {
-      setLoading(false);
+      if (error) throw error;
+
+      // 2) Crear fila en "profiles" (¡clave para el JOIN del Admin!)
+      const newUser = signUpData.user;
+      if (newUser) {
+        const { error: profileErr } = await supabase.from("profiles").insert({
+          id: newUser.id,          // FK = auth.users.id
+          email: newUser.email!,   // correo
+          full_name: fullName || null,
+        });
+        if (profileErr) {
+          // No frenamos el flujo, solo informamos en consola
+          console.warn("No se pudo crear profiles en registro:", profileErr);
+        }
+      }
+
+      toast({
+        title: "¡Registro exitoso!",
+        description: "Tu cuenta ha sido creada. Iniciando sesión...",
+      });
+      navigate("/plans");
     }
-  };
+  } catch (err: any) {
+    console.error(err);
+    toast({
+      title: "Ups…",
+      description: err?.message ?? "Ocurrió un error",
+      variant: "destructive",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-amber-100 to-yellow-200 relative overflow-hidden flex items-center justify-center">
