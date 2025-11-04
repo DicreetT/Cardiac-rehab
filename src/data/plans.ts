@@ -36,62 +36,79 @@ export const plans: Plan[] = [
   id: "1",
   slug: "marcha-tonificacion",
   name: "🚶‍♀️ 1. Marcha + Tonificación suave",
-  description: "Alterna marcha controlada y respiración activa para mejorar ritmo y control cardiovascular.",
-  intro: '"Hoy damos los primeros pasos de la nueva fase. Ritmo suave, respiración consciente y buena energía."',
+  description: "Alterna marcha controlada y respiración activa para mejorar ritmo y control cardiovascular, con estiramientos guiados al final.",
+  // 👇 Intro con “tabla” de rangos personalizada para él
+  intro:
+    "Tus rangos de hoy:\n" +
+    "• FC en reposo: 40–45 lpm\n" +
+    "• FC durante ejercicio: 50–60 lpm (si pasas de 62, baja el ritmo)\n" +
+    "• TA habitual: 120–140 / 70–85 mmHg\n" +
+    "• Meta durante ejercicio: ≤ 150/85 mmHg (si sube >150/90 o te mareas → pausa y SOS)\n" +
+    "• Esfuerzo (RPE): 3–4/10 → cómodo, puedes hablar en frases cortas\n\n" +
+    "Hoy damos los primeros pasos de la nueva fase: ritmo suave, respiración consciente y buena energía. Tras cada bloque activo tendrás 1′ de recuperación suave para registrar FC/TA y sensaciones.",
   objective: "Subir pulsaciones de forma controlada y tonificar sin fatiga.",
   focus: "Resistencia aeróbica ligera y control respiratorio.",
   duration: "40 min",
   difficulty: "Intermedio",
-  image: paseoMarImg,
+  image: paseoMarImg, // usa tu imagen de portada favorita
   hrRange: "50–60 lpm",
   restMessage: "Recupera el ritmo, respira suave y toma agua 💧",
   phases: [
     {
       name: "Calentamiento",
-      duration: 300,
+      duration: 300, // 5 min
       intensity: "suave sin resistencia",
       hrTarget: "HR ≤ 50 lpm",
-      description: "Marcha en el sitio 2′ + movilidad de cuello, hombros y tobillos 2′ + respiración 3–3 (1′)."
+      description: "Marcha en el sitio 2′ + movilidad (cuello, hombros, tobillos) 2′ + respiración 3–3 (1′)."
     },
     {
       name: "Set 1",
-      duration: 300,
+      duration: 600, // 10 min
       intensity: "moderada",
       hrTarget: "HR 50–60 lpm",
-      description: "Marcha continua de 2′ y respiración activa de 3′. Repite 2 veces para completar 10′ en total. Inhala 3, exhala 3. Si superas 62 lpm o notas fatiga, baja ritmo."
+      description:
+        "Alterna 2′ de marcha continua (paso corto y estable) + 3′ de respiración activa (inhala 3, exhala 3). Repite 2 veces. " +
+        "Si superas 62 lpm o notas fatiga, baja el ritmo."
     },
     {
       name: "Recuperación 1",
-      duration: 60,
+      duration: 60, // 1 min
       intensity: "muy suave",
-      description: "Caminata ligera o respiración tranquila. Anota FC y TA."
+      description: "Caminata ligera o respiración tranquila. Anota FC/TA y sensaciones. SOS si hace falta."
     },
     {
       name: "Set 2",
-      duration: 540,
+      duration: 600, // 10 min (puedes usar marcha o bici, como prefieras este día)
       intensity: "ligera-media",
       hrTarget: "HR 50–60 lpm",
-      description: "Alterna 2′ de marcha y 3′ de respiración diafragmática. Busca mantener el control del pulso y la respiración."
+      description:
+        "Repite el patrón 2′ marcha + 3′ respiración diafragmática. Mantén el control del pulso y la respiración. " +
+        "Si prefieres, este set puede hacerse en bici con resistencia media (2′ pedaleo cómodo + 3′ respiración en pedaleo suave)."
     },
     {
       name: "Recuperación 2",
-      duration: 60,
+      duration: 60, // 1 min
       intensity: "suave",
-      description: "Toma aire, anota tus mediciones y comenta cómo te sientes."
+      description: "Respira, hidrátate, y registra FC/TA y comentario. Si el esfuerzo fue >4/10, considera repetir este set."
     },
     {
       name: "Set 3 · Estiramientos guiados",
-      duration: 540,
+      duration: 540, // 9 min
       intensity: "muy ligera",
       hrTarget: "HR bajando hacia 45–50 lpm",
-      description: "1️⃣ Cuello lateral (oreja a hombro) 2x20″ por lado. 2️⃣ Pectoral en pared 2x20″. 3️⃣ Abrazo de espalda 2x20″. 4️⃣ Isquios sentado 2x20″ por lado. Respira 2–2 con calma."
+      description:
+        "1) Cuello lateral (oreja a hombro) 2×20″ por lado, ayuda suave con la mano.\n" +
+        "2) Pectoral en pared 2×20″ por lado (palma en pared, abre pecho con giro suave).\n" +
+        "3) Espalda alta (abrazo) 2×20″ (mentón suave hacia el pecho, respira amplio atrás).\n" +
+        "4) Isquios sentado 2×20″ por lado (espalda larga, mano hacia el pie). " +
+        "Respira 2–2 con calma y sin dolor."
     },
     {
       name: "Enfriamiento",
-      duration: 300,
+      duration: 240, // 4 min
       intensity: "sin resistencia",
       hrTarget: "HR ≤ 50",
-      description: "Respira profundo (2–2), relaja hombros y siente el latido calmarse."
+      description: "Respira profundo (2–2), hombros sueltos, siente el latido calmarse. Finaliza con una inhalación larga y exhala lento."
     }
   ]
 },
