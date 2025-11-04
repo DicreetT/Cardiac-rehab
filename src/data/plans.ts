@@ -94,7 +94,7 @@ export const plans: Plan[] = [
       description: "Respira profundo (2–2), relaja hombros y siente el latido calmarse."
     }
   ]
-}
+},
   {
     id: "2",
     slug: "bolita-llaves",
