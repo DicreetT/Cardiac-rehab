@@ -41,35 +41,45 @@ interface SOSRecord {
 
 export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) {
   const { user } = useAuth();
+
+  // sesión y flujo
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  // fase y tiempo
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [phaseTimeLeft, setPhaseTimeLeft] = useState(plan.phases[0].duration);
+
+  // registros
   const [hrRecords, setHrRecords] = useState<HRRecord[]>([]);
   const [sosRecords, setSOSRecords] = useState<SOSRecord[]>([]);
-  const [isCompleted, setIsCompleted] = useState(false);
+
+  // modales
   const [showHRDialog, setShowHRDialog] = useState(false);
   const [showSOSDialog, setShowSOSDialog] = useState(false);
+  const [pendingPhaseForHR, setPendingPhaseForHR] = useState<number | null>(null);
+
+  // inputs de modal HR/SOS
   const [currentHRInput, setCurrentHRInput] = useState("");
   const [currentSystolicInput, setCurrentSystolicInput] = useState("");
   const [currentDiastolicInput, setCurrentDiastolicInput] = useState("");
   const [currentComment, setCurrentComment] = useState("");
   const [currentSOSInput, setCurrentSOSInput] = useState("");
-  const [pendingPhaseForHR, setPendingPhaseForHR] = useState<number | null>(null);
-  
+
+  // audio
   const audioContextRef = useRef<AudioContext | null>(null);
-  const beepTimerRef = useRef<number | null>(null);
   const lastBeepRef = useRef<number>(0);
 
+  // derivados
   const currentPhase = plan.phases[currentPhaseIndex];
-  const totalDuration = plan.phases.reduce((acc, phase) => acc + phase.duration, 0);
-  const elapsedTotal = plan.phases
-    .slice(0, currentPhaseIndex)
-    .reduce((acc, phase) => acc + phase.duration, 0) + 
+  const totalDuration = plan.phases.reduce((acc, p) => acc + p.duration, 0);
+  const elapsedTotal =
+    plan.phases.slice(0, currentPhaseIndex).reduce((acc, p) => acc + p.duration, 0) +
     (currentPhase.duration - phaseTimeLeft);
   const progressPercent = (elapsedTotal / totalDuration) * 100;
 
-  // Inicializar AudioContext
+  // crear/resumir AudioContext
   useEffect(() => {
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     return () => {
@@ -77,112 +87,108 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     };
   }, []);
 
-  // Función para reproducir pitido
   const playBeep = (frequency: number = 800, duration: number = 0.2) => {
-    // Asegurar que el AudioContext esté activo
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-    
-    if (audioContextRef.current.state === 'suspended') {
+    if (audioContextRef.current.state === "suspended") {
       audioContextRef.current.resume();
     }
-    
-    const oscillator = audioContextRef.current.createOscillator();
-    const gainNode = audioContextRef.current.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContextRef.current.destination);
-    
-    oscillator.frequency.value = frequency;
-    oscillator.type = "sine";
-    
-    // Volumen más alto para que se escuche mejor
-    gainNode.gain.setValueAtTime(0.5, audioContextRef.current.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + duration);
-    
-    oscillator.start(audioContextRef.current.currentTime);
-    oscillator.stop(audioContextRef.current.currentTime + duration);
+
+    const osc = audioContextRef.current.createOscillator();
+    const gain = audioContextRef.current.createGain();
+    osc.connect(gain);
+    gain.connect(audioContextRef.current.destination);
+
+    osc.frequency.value = frequency;
+    osc.type = "sine";
+
+    // volumen cómodo y corta cola
+    const t = audioContextRef.current.currentTime;
+    gain.gain.setValueAtTime(0.5, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + duration);
+
+    osc.start(t);
+    osc.stop(t + duration);
   };
 
-  // Timer principal
+  // TIMER PRINCIPAL — con 3–2–1 y beepInterval
   useEffect(() => {
     if (!isRunning || isCompleted) return;
 
     const interval = setInterval(() => {
       setPhaseTimeLeft((prev) => {
-        // Pitido 3 segundos antes del final
-        if (prev === 4) {
-          playBeep(900, 0.25);
-        }
-        
+        // cuenta atrás final: 3–2–1
+        if (prev === 3) playBeep(880, 0.18);
+        if (prev === 2) playBeep(980, 0.18);
+        if (prev === 1) playBeep(1200, 0.22);
+
+        // fin de fase
         if (prev <= 1) {
-          // Fin de fase
-          playBeep(1000, 0.3);
-          
           const finishedPhase = plan.phases[currentPhaseIndex];
-          const isSetPhase = finishedPhase.name.toLowerCase().startsWith('set') && 
-                            finishedPhase.hrTarget;
-          const isWarmupPhase = finishedPhase.name.toLowerCase().includes('calentamiento') && 
-                                finishedPhase.hrTarget;
-          
+          const isSetPhase =
+            finishedPhase.name.toLowerCase().startsWith("set") && !!finishedPhase.hrTarget;
+          const isWarmupPhase =
+            finishedPhase.name.toLowerCase().includes("calentamiento") && !!finishedPhase.hrTarget;
+
           if (currentPhaseIndex < plan.phases.length - 1) {
-            // Si terminó un set o calentamiento con meta de HR, pausar y pedir registro
+            // pedir FC si aplica
             if (isSetPhase || isWarmupPhase) {
               setIsRunning(false);
               setPendingPhaseForHR(currentPhaseIndex);
               setShowHRDialog(true);
             } else {
-              // Siguiente fase automática (para descansos, enfriamiento sin HR target)
-              setCurrentPhaseIndex((idx) => idx + 1);
+              // avanzar automático (descansos/enfriamiento sin hrTarget)
+              setCurrentPhaseIndex((i) => i + 1);
               return plan.phases[currentPhaseIndex + 1].duration;
             }
           } else {
-            // Ejercicio completado
+            // fin de plan
             setIsRunning(false);
             setIsCompleted(true);
             saveSessionToDatabase();
             return 0;
           }
         }
-        
-        // Pitidos intermedios
+
+        // pitidos intermedios (si la fase define beepInterval)
         if (currentPhase.beepInterval) {
-          const elapsedInPhase = currentPhase.duration - prev;
-          const nextBeepTime = Math.floor(elapsedInPhase / currentPhase.beepInterval) * currentPhase.beepInterval;
-          
-          if (elapsedInPhase >= nextBeepTime && elapsedInPhase - lastBeepRef.current >= currentPhase.beepInterval - 1) {
+          const elapsed = currentPhase.duration - prev;
+          if (
+            elapsed > 0 &&
+            elapsed % currentPhase.beepInterval === 0 &&
+            lastBeepRef.current !== elapsed
+          ) {
             playBeep(600, 0.15);
-            lastBeepRef.current = elapsedInPhase;
+            lastBeepRef.current = elapsed;
           }
         }
-        
+
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isRunning, currentPhaseIndex, currentPhase, plan.phases, isCompleted]);
+  }, [isRunning, isCompleted, currentPhaseIndex, currentPhase, plan.phases]);
 
-  // Pitido de inicio de fase (solo al cambiar de fase, no al iniciar)
+  // beep al iniciar nueva fase y reset de marcador de pitidos
   useEffect(() => {
     if (isRunning && currentPhaseIndex > 0) {
-      // Pitido al iniciar nueva fase
       playBeep(800, 0.25);
       lastBeepRef.current = 0;
     }
-  }, [currentPhaseIndex]);
+  }, [currentPhaseIndex, isRunning]);
 
   const handleStart = async () => {
-    // Activar AudioContext en la interacción del usuario
+    // asegurar audio activo en interacción
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-    
-    if (audioContextRef.current.state === 'suspended') {
+    if (audioContextRef.current.state === "suspended") {
       await audioContextRef.current.resume();
     }
-    
+
+    // crear sesión si no existe
     if (!sessionId && user) {
       const { data } = await supabase
         .from("exercise_sessions")
@@ -193,30 +199,24 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         })
         .select()
         .single();
-      
-      if (data) {
-        setSessionId(data.id);
-      }
+      if (data) setSessionId(data.id);
     }
+
     setIsRunning(true);
-    
-    // Reproducir un pitido de prueba al iniciar
-    setTimeout(() => {
-      playBeep(800, 0.25);
-    }, 100);
+
+    // beep de confirmación
+    setTimeout(() => playBeep(800, 0.22), 100);
   };
 
-  const handlePause = () => {
-    setIsRunning(false);
-  };
+  const handlePause = () => setIsRunning(false);
 
   const handleReset = () => {
     setIsRunning(false);
+    setIsCompleted(false);
     setCurrentPhaseIndex(0);
     setPhaseTimeLeft(plan.phases[0].duration);
     setHrRecords([]);
     setSOSRecords([]);
-    setIsCompleted(false);
     setShowHRDialog(false);
     setShowSOSDialog(false);
     setPendingPhaseForHR(null);
@@ -238,22 +238,20 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         diastolic: currentDiastolicInput ? parseInt(currentDiastolicInput) : undefined,
         target: phase.hrTarget || "",
         comment: currentComment.trim() || undefined,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-      
-      setHrRecords([...hrRecords, newRecord]);
+      setHrRecords((r) => [...r, newRecord]);
+
+      // limpiar y avanzar
       setShowHRDialog(false);
       setCurrentHRInput("");
       setCurrentSystolicInput("");
       setCurrentDiastolicInput("");
       setCurrentComment("");
-      
-      // Avanzar a siguiente fase
+
       setCurrentPhaseIndex(pendingPhaseForHR + 1);
       setPhaseTimeLeft(plan.phases[pendingPhaseForHR + 1].duration);
       setPendingPhaseForHR(null);
-      
-      // Reanudar automáticamente
       setIsRunning(true);
     }
   };
@@ -265,36 +263,31 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
       setCurrentSystolicInput("");
       setCurrentDiastolicInput("");
       setCurrentComment("");
-      
-      // Avanzar a siguiente fase sin registro
+
       setCurrentPhaseIndex(pendingPhaseForHR + 1);
       setPhaseTimeLeft(plan.phases[pendingPhaseForHR + 1].duration);
       setPendingPhaseForHR(null);
-      
-      // Reanudar automáticamente
       setIsRunning(true);
     }
   };
 
-  const handleOpenSOS = () => {
-    setShowSOSDialog(true);
-  };
+  const handleOpenSOS = () => setShowSOSDialog(true);
 
   const handleSaveSOS = async () => {
     if (currentSOSInput.trim() && sessionId) {
       const newSOSRecord: SOSRecord = {
         phaseName: currentPhase.name,
         symptoms: currentSOSInput.trim(),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-      
+
       await supabase.from("sos_records").insert({
         session_id: sessionId,
         phase_name: newSOSRecord.phaseName,
         symptoms: newSOSRecord.symptoms,
       });
-      
-      setSOSRecords([...sosRecords, newSOSRecord]);
+
+      setSOSRecords((r) => [...r, newSOSRecord]);
       setShowSOSDialog(false);
       setCurrentSOSInput("");
     }
@@ -303,10 +296,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   const saveSessionToDatabase = async () => {
     if (!sessionId) return;
 
-    await supabase
-      .from("exercise_sessions")
-      .update({ completed: true })
-      .eq("id", sessionId);
+    await supabase.from("exercise_sessions").update({ completed: true }).eq("id", sessionId);
 
     for (const record of hrRecords) {
       await supabase.from("hr_records").insert({
@@ -322,26 +312,28 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   };
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const isRestPhase = currentPhase.name.toLowerCase().includes('descanso') || 
-                      currentPhase.intensity === 'pausa';
-  const isSetPhase = currentPhase.name.toLowerCase().startsWith('set');
-  const isWarmupPhase = currentPhase.name.toLowerCase().includes('calentamiento');
-  const isCooldownPhase = currentPhase.name.toLowerCase().includes('enfriamiento');
+  const isRestPhase =
+    currentPhase.name.toLowerCase().includes("descanso") ||
+    currentPhase.name.toLowerCase().includes("recuperación") ||
+    currentPhase.intensity === "pausa";
+  const isSetPhase = currentPhase.name.toLowerCase().startsWith("set");
+  const isWarmupPhase = currentPhase.name.toLowerCase().includes("calentamiento");
+  const isCooldownPhase = currentPhase.name.toLowerCase().includes("enfriamiento");
   const showSOSButton = isSetPhase || isWarmupPhase || isCooldownPhase;
 
   return (
     <div className="space-y-6">
-      {/* Intro narrativa */}
+      {/* Intro */}
       <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-xl border-2 border-gray-700">
         <p className="font-bubblegum text-lg text-gray-100 italic">{plan.intro}</p>
       </div>
 
-      {/* Objetivo y Foco */}
+      {/* Objetivo / Foco */}
       {(plan.objective || plan.focus) && (
         <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           {plan.objective && (
@@ -357,7 +349,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         </div>
       )}
 
-      {/* Resumen del plan */}
+      {/* Tabla del plan */}
       <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
         <h3 className="font-caveat text-2xl font-bold mb-4">Tabla del ejercicio</h3>
         <div className="overflow-x-auto">
@@ -375,7 +367,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                 <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="p-3 font-semibold">{phase.name}</td>
                   <td className="p-3">{Math.floor(phase.duration / 60)}'</td>
-                  <td className="p-3">{phase.hrTarget || '—'}</td>
+                  <td className="p-3">{phase.hrTarget || "—"}</td>
                   <td className="p-3 text-sm text-gray-700">{phase.description}</td>
                 </tr>
               ))}
@@ -384,56 +376,46 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         </div>
       </div>
 
-      {/* Cronómetro y fase actual */}
+      {/* Cronómetro */}
       <div className="bg-white p-8 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
         <div className="text-center mb-6">
-          <div className={`inline-block px-6 py-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-4 ${
-            isRestPhase ? 'bg-blue-300' : 'bg-yellow-400'
-          }`}>
+          <div
+            className={`inline-block px-6 py-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-4 ${
+              isRestPhase ? "bg-blue-300" : "bg-yellow-400"
+            }`}
+          >
             <h2 className="font-caveat text-4xl font-bold">{currentPhase.name}</h2>
           </div>
-          
+
           {isSetPhase && (
             <div className="mt-4 mb-6 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-lg overflow-hidden p-4">
-              <img 
-                src={bolitaHappy} 
-                alt="Bolita entrenando" 
-                className="w-full h-80 object-contain"
-              />
+              <img src={bolitaHappy} alt="Bolita entrenando" className="w-full h-80 object-contain" />
             </div>
           )}
-          
-          <div className="text-6xl font-bold font-mono mb-2 text-gray-900">
-            {formatTime(phaseTimeLeft)}
-          </div>
-          
+
+          <div className="text-6xl font-bold font-mono mb-2 text-gray-900">{formatTime(phaseTimeLeft)}</div>
+
           <p className="text-gray-600 mb-2">
             <span className="font-semibold">Intensidad:</span> {currentPhase.intensity}
           </p>
-          
+
           {currentPhase.hrTarget && (
             <p className="text-gray-600 mb-2">
               <span className="font-semibold">FC objetivo:</span> {currentPhase.hrTarget}
             </p>
           )}
-          
+
           <p className="text-gray-700 italic">{currentPhase.description}</p>
-          
+
           {currentPhase.beepAction && (
             <div className="mt-3 bg-orange-100 border border-orange-300 rounded-lg p-2">
-              <p className="text-sm font-semibold text-orange-800">
-                🔔 {currentPhase.beepAction}
-              </p>
+              <p className="text-sm font-semibold text-orange-800">🔔 {currentPhase.beepAction}</p>
             </div>
           )}
-          
+
           {isRestPhase && (
             <div className="mt-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg overflow-hidden">
-              <img 
-                src={bolitaZen} 
-                alt="Bolita en meditación" 
-                className="w-full h-96 object-cover object-top"
-              />
+              <img src={bolitaZen} alt="Bolita en meditación" className="w-full h-96 object-cover object-top" />
               {plan.restMessage && (
                 <p className="font-bubblegum text-green-800 text-lg p-4">{plan.restMessage}</p>
               )}
@@ -441,7 +423,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           )}
         </div>
 
-        {/* Barra de progreso */}
+        {/* Progreso */}
         <div className="mb-6">
           <Progress value={progressPercent} className="h-3" />
           <p className="text-center text-sm text-gray-600 mt-2">
@@ -452,33 +434,18 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         {/* Controles */}
         <div className="flex gap-3 justify-center flex-wrap">
           {!isRunning ? (
-            <Button
-              onClick={handleStart}
-              size="lg"
-              className="font-bubblegum text-lg"
-              disabled={isCompleted}
-            >
+            <Button onClick={handleStart} size="lg" className="font-bubblegum text-lg" disabled={isCompleted}>
               <Play className="mr-2" />
-              {currentPhaseIndex === 0 && phaseTimeLeft === plan.phases[0].duration ? 'Iniciar' : 'Reanudar'}
+              {currentPhaseIndex === 0 && phaseTimeLeft === plan.phases[0].duration ? "Iniciar" : "Reanudar"}
             </Button>
           ) : (
-            <Button
-              onClick={handlePause}
-              variant="secondary"
-              size="lg"
-              className="font-bubblegum text-lg"
-            >
+            <Button onClick={handlePause} variant="secondary" size="lg" className="font-bubblegum text-lg">
               <Pause className="mr-2" />
               Pausar
             </Button>
           )}
-          
-          <Button
-            onClick={handleReset}
-            variant="outline"
-            size="lg"
-            className="font-bubblegum text-lg"
-          >
+
+          <Button onClick={handleReset} variant="outline" size="lg" className="font-bubblegum text-lg">
             <RotateCcw className="mr-2" />
             Reiniciar
           </Button>
@@ -497,7 +464,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         </div>
       </div>
 
-      {/* Dialog SOS */}
+      {/* Modal SOS */}
       <Dialog open={showSOSDialog} onOpenChange={setShowSOSDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -506,7 +473,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
               Registro SOS
             </DialogTitle>
             <DialogDescription>
-              Describe cómo te sientes en este momento. Esto nos ayudará a monitorear tu bienestar.
+              Describe cómo te sientes en este momento. Esto nos ayuda a cuidarte mejor.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -516,21 +483,15 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                 id="sos-input"
                 value={currentSOSInput}
                 onChange={(e) => setCurrentSOSInput(e.target.value)}
-                placeholder="Ej: Siento palpitaciones, opresión en el pecho, mareo, sofoco..."
+                placeholder="Ej.: palpitaciones, opresión en el pecho, mareo, sofoco…"
                 className="mt-1"
                 rows={5}
               />
-              <p className="text-xs text-gray-500 mt-2">
-                💡 Ejemplos: palpitaciones, opresión, mareo, sofoco, falta de aire, dolor en el pecho
-              </p>
+              <p className="text-xs text-gray-500 mt-2">💡 Si persisten o empeoran, detén el ejercicio y avisa.</p>
             </div>
           </div>
           <div className="flex gap-3">
-            <Button
-              onClick={handleSaveSOS}
-              disabled={!currentSOSInput.trim()}
-              className="flex-1 bg-red-600 hover:bg-red-700"
-            >
+            <Button onClick={handleSaveSOS} disabled={!currentSOSInput.trim()} className="flex-1 bg-red-600 hover:bg-red-700">
               Guardar registro
             </Button>
             <Button
@@ -547,7 +508,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         </DialogContent>
       </Dialog>
 
-      {/* Dialog para registrar FC al finalizar set */}
+      {/* Modal HR */}
       <Dialog open={showHRDialog} onOpenChange={setShowHRDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -565,6 +526,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
               )}
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4 py-4">
             <div>
               <Label htmlFor="hr-input">Frecuencia Cardíaca (lpm) *</Label>
@@ -573,18 +535,20 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                 type="number"
                 value={currentHRInput}
                 onChange={(e) => setCurrentHRInput(e.target.value)}
-                placeholder="Ej: 80"
+                placeholder="Ej.: 58"
                 className="mt-1"
-                min="40"
+                min="30"
                 max="200"
               />
             </div>
-            
+
             <div>
               <Label className="mb-2 block">Tensión Arterial (opcional)</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="systolic-input" className="text-xs text-gray-600">Sistólica</Label>
+                  <Label htmlFor="systolic-input" className="text-xs text-gray-600">
+                    Sistólica
+                  </Label>
                   <Input
                     id="systolic-input"
                     type="number"
@@ -593,11 +557,13 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                     placeholder="120"
                     className="mt-1"
                     min="70"
-                    max="200"
+                    max="220"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="diastolic-input" className="text-xs text-gray-600">Diastólica</Label>
+                  <Label htmlFor="diastolic-input" className="text-xs text-gray-600">
+                    Diastólica
+                  </Label>
                   <Input
                     id="diastolic-input"
                     type="number"
@@ -606,45 +572,38 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                     placeholder="80"
                     className="mt-1"
                     min="40"
-                    max="130"
+                    max="140"
                   />
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-1">Formato: sistólica / diastólica</p>
             </div>
-            
+
             <div>
               <Label htmlFor="comment-input">Comentario (opcional)</Label>
               <Textarea
                 id="comment-input"
                 value={currentComment}
                 onChange={(e) => setCurrentComment(e.target.value)}
-                placeholder="¿Cómo te sentiste?"
+                placeholder="¿Cómo te sentiste en este set?"
                 className="mt-1"
                 rows={3}
               />
             </div>
           </div>
+
           <div className="flex gap-3">
-            <Button
-              onClick={handleSaveHR}
-              disabled={!currentHRInput}
-              className="flex-1"
-            >
+            <Button onClick={handleSaveHR} disabled={!currentHRInput} className="flex-1">
               Guardar y continuar
             </Button>
-            <Button
-              onClick={handleSkipHR}
-              variant="outline"
-              className="flex-1"
-            >
+            <Button onClick={handleSkipHR} variant="outline" className="flex-1">
               Saltar
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Resumen de registros de FC */}
+      {/* Resumen FC */}
       {hrRecords.length > 0 && (
         <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <h3 className="font-caveat text-2xl font-bold mb-4 flex items-center gap-2">
@@ -652,41 +611,38 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
             Resumen de tu sesión
           </h3>
           <div className="space-y-3">
-            {hrRecords.map((record, idx) => (
-              <div key={idx} className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-lg border-2 border-red-200">
+            {hrRecords.map((r, i) => (
+              <div key={i} className="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-lg border-2 border-red-200">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-bold text-gray-900">{record.phaseName}</span>
+                  <span className="font-bold text-gray-900">{r.phaseName}</span>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-red-600">{record.hr} lpm</div>
-                    <div className="text-xs text-gray-600">Meta: {record.target}</div>
-                    {(record.systolic || record.diastolic) && (
+                    <div className="text-2xl font-bold text-red-600">{r.hr} lpm</div>
+                    <div className="text-xs text-gray-600">Meta: {r.target}</div>
+                    {(r.systolic || r.diastolic) && (
                       <div className="text-sm font-semibold text-blue-600 mt-1">
-                        TA: {record.systolic || '?'}/{record.diastolic || '?'} mmHg
+                        TA: {r.systolic || "?"}/{r.diastolic || "?"} mmHg
                       </div>
                     )}
                   </div>
                 </div>
-                {record.comment && (
-                  <p className="text-sm text-gray-700 italic mt-2 border-t border-red-200 pt-2">
-                    "{record.comment}"
-                  </p>
+                {r.comment && (
+                  <p className="text-sm text-gray-700 italic mt-2 border-t border-red-200 pt-2">"{r.comment}"</p>
                 )}
                 <div className="text-xs text-gray-500 mt-1">
-                  {new Date(record.timestamp).toLocaleTimeString('es-ES', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
+                  {new Date(r.timestamp).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
                 </div>
               </div>
             ))}
-            
+
             {isCompleted && (
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-300 mt-4">
                 <p className="text-center font-bold text-green-800">
-                  ✨ Promedio de FC: {Math.round(hrRecords.reduce((sum, r) => sum + r.hr, 0) / hrRecords.length)} lpm
+                  ✨ Promedio de FC:{" "}
+                  {Math.round(hrRecords.reduce((s, r) => s + r.hr, 0) / hrRecords.length)} lpm
                 </p>
                 <p className="text-center text-sm text-gray-600 mt-1">
-                  {hrRecords.length} registro{hrRecords.length !== 1 ? 's' : ''} completado{hrRecords.length !== 1 ? 's' : ''}
+                  {hrRecords.length} registro{hrRecords.length !== 1 ? "s" : ""} completado
+                  {hrRecords.length !== 1 ? "s" : ""}
                 </p>
               </div>
             )}
@@ -694,7 +650,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         </div>
       )}
 
-      {/* Resumen de registros SOS */}
+      {/* Registros SOS */}
       {sosRecords.length > 0 && (
         <div className="bg-red-50 p-6 rounded-xl border-2 border-red-400 shadow-[4px_4px_0px_0px_rgba(220,38,38,1)]">
           <h3 className="font-caveat text-2xl font-bold mb-4 flex items-center gap-2 text-red-700">
@@ -702,20 +658,15 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
             Registros SOS
           </h3>
           <div className="space-y-3">
-            {sosRecords.map((record, idx) => (
-              <div key={idx} className="bg-white p-4 rounded-lg border-2 border-red-300">
+            {sosRecords.map((r, i) => (
+              <div key={i} className="bg-white p-4 rounded-lg border-2 border-red-300">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-bold text-gray-900">{record.phaseName}</span>
+                  <span className="font-bold text-gray-900">{r.phaseName}</span>
                   <div className="text-xs text-gray-600">
-                    {new Date(record.timestamp).toLocaleTimeString('es-ES', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
+                    {new Date(r.timestamp).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 bg-red-50 p-3 rounded border border-red-200">
-                  {record.symptoms}
-                </p>
+                <p className="text-sm text-gray-700 bg-red-50 p-3 rounded border border-red-200">{r.symptoms}</p>
               </div>
             ))}
           </div>
@@ -727,13 +678,9 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         </div>
       )}
 
-      {/* Botón de completar */}
+      {/* Completar */}
       {isCompleted && (
-        <Button
-          onClick={onComplete}
-          size="lg"
-          className="w-full font-bubblegum text-lg"
-        >
+        <Button onClick={onComplete} size="lg" className="w-full font-bubblegum text-lg">
           <CheckCircle className="mr-2" />
           ¡Marcar como completado!
         </Button>
