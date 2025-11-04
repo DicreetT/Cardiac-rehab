@@ -29,6 +29,7 @@ export interface Plan {
   hrRange: string; // rango de FC, ej: "70-85 lpm"
   phases: Phase[];
   restMessage?: string; // mensaje motivacional durante descansos
+  rpe?: { min: number; max: number };
 }
 
 export const plans: Plan[] = [
@@ -45,6 +46,7 @@ export const plans: Plan[] = [
   duration: "≈ 25 min",
   difficulty: "Principiante",
   image: paseoMarImg,
+    rpe: { min: 2, max: 4 },
   hrRange: "Rango general de frecuencia cardíaca: 48–60 lpm (bajo esfuerzo).",
   restMessage:
     "Respira por la nariz, hombros sueltos, mandíbula relajada. No hay prisa: el descanso también es parte del trabajo.",
@@ -135,6 +137,7 @@ export const plans: Plan[] = [
     duration: "26 min",
     difficulty: "Intermedio",
     image: bolitaLlavesImg,
+    rpe: { min: 2, max: 4 },
     hrRange: "75-90 lpm",
     phases: [
       {
@@ -209,6 +212,7 @@ export const plans: Plan[] = [
     focus: "Alternar carga / descanso y sentir la variación natural.",
     duration: "28 min",
     difficulty: "Intermedio",
+    rpe: { min: 2, max: 4 },
     image: cotilleoMontanaImg,
     hrRange: "70-85 lpm",
     phases: [
@@ -272,6 +276,7 @@ export const plans: Plan[] = [
     duration: "28 min",
     difficulty: "Principiante",
     image: sincroniaImg,
+    rpe: { min: 2, max: 4 },
     hrRange: "65-75 lpm",
     phases: [
       {
@@ -334,6 +339,7 @@ export const plans: Plan[] = [
     duration: "22 min",
     difficulty: "Intermedio",
     image: noDualidadImg,
+    rpe: { min: 2, max: 4 },
     hrRange: "70-85 lpm",
     phases: [
       {
@@ -386,6 +392,7 @@ export const plans: Plan[] = [
     duration: "30 min",
     difficulty: "Intermedio",
     image: volvoTallerImg,
+    rpe: { min: 2, max: 4 },
     hrRange: "75-90 lpm",
     phases: [
       {
