@@ -31,84 +31,77 @@ export interface Plan {
   restMessage?: string; // mensaje motivacional durante descansos
 }
 
-export const plans: Plan[] = [
-  {
+export const plans: Plan[] = [lento."
+    {
   id: "1",
-  slug: "marcha-tonificacion",
-  name: "🚶‍♀️ 1. Marcha + Tonificación suave",
-  description: "Alterna marcha controlada y respiración activa para mejorar ritmo y control cardiovascular, con estiramientos guiados al final.",
-  // 👇 Intro con “tabla” de rangos personalizada para él
-  intro:
-    "Tus rangos de hoy:\n" +
-    "• FC en reposo: 40–45 lpm\n" +
-    "• FC durante ejercicio: 50–60 lpm (si pasas de 62, baja el ritmo)\n" +
-    "• TA habitual: 120–140 / 70–85 mmHg\n" +
-    "• Meta durante ejercicio: ≤ 150/85 mmHg (si sube >150/90 o te mareas → pausa y SOS)\n" +
-    "• Esfuerzo (RPE): 3–4/10 → cómodo, puedes hablar en frases cortas\n\n" +
-    "Hoy damos los primeros pasos de la nueva fase: ritmo suave, respiración consciente y buena energía. Tras cada bloque activo tendrás 1′ de recuperación suave para registrar FC/TA y sensaciones.",
-  objective: "Subir pulsaciones de forma controlada y tonificar sin fatiga.",
-  focus: "Resistencia aeróbica ligera y control respiratorio.",
-  duration: "40 min",
-  difficulty: "Intermedio",
-  image: paseoMarImg, // usa tu imagen de portada favorita
-  hrRange: "50–60 lpm",
-  restMessage: "Recupera el ritmo, respira suave y toma agua 💧",
+  slug: "paseo-mar",
+  name: "🏖️ 1. Marcha y tonificación suave",
+  description: "Marcha corta + respiraciones que suben un poquito el pulso",
+  intro: "“Hoy mezclamos marcha suave con respiraciones. Todo claro y guiado paso a paso.”",
+  objective: "Subir ligeramente el pulso sin fatiga y mejorar la tolerancia al esfuerzo.",
+  focus: "Ritmo cómodo, hombros sueltos y respiración tranquila.",
+  duration: "33 min",
+  difficulty: "Principiante",
+  image: paseoMarImg,
+  hrRange: "Reposo ~40 lpm · En esfuerzo 50–60 lpm (si superas 65 lpm, baja el ritmo)",
+  restMessage: "Recupera suave, sacude hombros y muñecas 🌿",
   phases: [
     {
       name: "Calentamiento",
       duration: 300, // 5 min
-      intensity: "suave sin resistencia",
-      hrTarget: "HR ≤ 50 lpm",
-      description: "Marcha en el sitio 2′ + movilidad (cuello, hombros, tobillos) 2′ + respiración 3–3 (1′)."
+      intensity: "sin resistencia",
+      hrTarget: "Muy cómodo (40–50 lpm).",
+      description: "Pedalea sin resistencia. Espalda larga y hombros sueltos. Respira 4s entra / 4s sale."
     },
     {
       name: "Set 1",
-      duration: 600, // 10 min
-      intensity: "moderada",
-      hrTarget: "HR 50–60 lpm",
+      duration: 540, // 9 min: 2' marcha + 3' resp · repetido 1 vez (2+3)×2 = 10… ajusta si prefieres
+      intensity: "leve",
+      hrTarget: "50–60 lpm. Si hablar cuesta, baja el ritmo.",
       description:
-        "Alterna 2′ de marcha continua (paso corto y estable) + 3′ de respiración activa (inhala 3, exhala 3). Repite 2 veces. " +
-        "Si superas 62 lpm o notas fatiga, baja el ritmo."
+        "Secuencia: 2 min de marcha suave + 3 min de respiración activa (4s entra / 4s sale). " +
+        "En cada 30 s, 3–4 pedaladas un poquito más firmes y vuelves al ritmo cómodo. Repite el patrón para completar el set."
     },
     {
-      name: "Recuperación 1",
+      name: "Recuperación",
       duration: 60, // 1 min
-      intensity: "muy suave",
-      description: "Caminata ligera o respiración tranquila. Anota FC/TA y sensaciones. SOS si hace falta."
+      intensity: "pausa",
+      description: "Pedaleo muy suave. Respira 4-4. Sacude hombros y muñecas."
     },
     {
       name: "Set 2",
-      duration: 600, // 10 min (puedes usar marcha o bici, como prefieras este día)
-      intensity: "ligera-media",
-      hrTarget: "HR 50–60 lpm",
-      description:
-        "Repite el patrón 2′ marcha + 3′ respiración diafragmática. Mantén el control del pulso y la respiración. " +
-        "Si prefieres, este set puede hacerse en bici con resistencia media (2′ pedaleo cómodo + 3′ respiración en pedaleo suave)."
-    },
-    {
-      name: "Recuperación 2",
-      duration: 60, // 1 min
-      intensity: "suave",
-      description: "Respira, hidrátate, y registra FC/TA y comentario. Si el esfuerzo fue >4/10, considera repetir este set."
-    },
-    {
-      name: "Set 3 · Estiramientos guiados",
       duration: 540, // 9 min
-      intensity: "muy ligera",
-      hrTarget: "HR bajando hacia 45–50 lpm",
+      intensity: "leve–moderada",
+      hrTarget: "50–60 lpm (objetivo 4/10 de esfuerzo).",
       description:
-        "1) Cuello lateral (oreja a hombro) 2×20″ por lado, ayuda suave con la mano.\n" +
-        "2) Pectoral en pared 2×20″ por lado (palma en pared, abre pecho con giro suave).\n" +
-        "3) Espalda alta (abrazo) 2×20″ (mentón suave hacia el pecho, respira amplio atrás).\n" +
-        "4) Isquios sentado 2×20″ por lado (espalda larga, mano hacia el pie). " +
-        "Respira 2–2 con calma y sin dolor."
+        "Secuencia: 2 min de marcha + 3 min con respiración “elástica”: 4s entra · 1s pausa · 4s sale · 1s pausa. " +
+        "En la última exhalación de cada minuto, haz 5 pedaladas firmes sin mover el tronco. Repite para completar el set."
+    },
+    {
+      name: "Recuperación",
+      duration: 60, // 1 min
+      intensity: "pausa",
+      description: "Muy suave. Observa cómo baja el pulso."
+    },
+    {
+      name: "Set 3",
+      duration: 540, // 9 min
+      intensity: "muy leve (sin resistencia)",
+      hrTarget: "Pulso bajando (hacia 45–55 lpm).",
+      description:
+        "Estirar en la bici, movimientos simples: " +
+        "• Cuello lateral (x4 por lado): oreja a hombro, ayuda suave con mano homóloga, cuenta 4; respira 2-2 y cambia. " +
+        "• Pectoral (x4 por lado): mano en respaldo/manillar, abre pecho 4, respira 2-2. " +
+        "• Espalda alta (x4): manos unidas al frente, redondea espalda 4, respira 2-2. " +
+        "• Sentarse/levantarse suave (x4): detén pedaleo, levántate 2-3 s y siéntate; vuelve a pedalear suave. " +
+        "• Pantorrillas (x4 por lado): talón “pesado” abajo 4, respira 2-2."
     },
     {
       name: "Enfriamiento",
-      duration: 240, // 4 min
+      duration: 300, // 5 min
       intensity: "sin resistencia",
-      hrTarget: "HR ≤ 50",
-      description: "Respira profundo (2–2), hombros sueltos, siente el latido calmarse. Finaliza con una inhalación larga y exhala lento."
+      hrTarget: "Volver a cómodo (40–50 lpm).",
+      description: "Pedaleo sin carga. Respira 4-4 y termina con 3 respiraciones largas (5 entra / 6 sale)."
     }
   ]
 },
