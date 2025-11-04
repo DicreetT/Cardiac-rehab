@@ -33,70 +33,68 @@ export interface Plan {
 
 export const plans: Plan[] = [
   {
-    id: "1",
-    slug: "paseo-mar",
-    name: "🏖️ 1. Paseo por el mar",
-    description: "Pedalea suave como si estuvieras junto al mar",
-    intro: '"La brisa trae calma. Hoy pedaleas como si el océano respirara contigo."',
-    objective: "Recuperar movilidad, ritmo, respiración constante.",
-    focus: "Subir pulsaciones sin forzar el corazon.",
-    duration: "37 min",
-    difficulty: "Principiante",
-    image: paseoMarImg,
-    hrRange: "60-70 lpm",
-    restMessage: "Paras en un chiringuito a tomarte un juguo y recuperar fuerzas 🍍",
-    phases: [
-      {
-        name: "Calentamiento",
-        duration: 300,
-        intensity: "sin resistencia",
-        hrTarget: "HR < 60 lpm, TA estable",
-        description: "Sin resistencia, solo fluir"
-      },
-      {
-        name: "Set 1",
-        duration: 540,
-        intensity: "resistencia leve (el pedal no va solo pero la fuerza no se enfoca en moverlo)",
-        hrTarget: "HR > 50, la meta entrar en un ritmo constante. tension sistolica entre 120-30",
-        description: "Sentir calor muscular"
-      },
-      {
-        name: "Descanso 1",
-        duration: 180,
-        intensity: "pausa",
-        description: '"Juguito de piña 🍍, recierda mantener los hombros sueltos mientras pedaleas."'
-      },
-      {
-        name: "Set 2",
-        duration: 540,
-        intensity: "aumentamos minimamnete la resistencia",
-        hrTarget: "HR > 60 con tensiones < 130 sistolica",
-        description: "durante este set respira 4 secs in, 4 secs out"
-      },
-      {
-        name: "Descanso 2",
-        duration: 180,
-        intensity: "pausa",
-        description: '"El mar suena más cerca."'
-      },
-      {
-        name: "Set 3",
-        duration: 540,
-        intensity: "mantenemos la resisitencia igual que el set anterior",
-        hrTarget: "HR > 50 pero < 70 lpm, tension < 130 sistolica",
-        description: "Levantarse 2–3 s cada 30 secs sobre los pedales, siguiendo los pitidos. este ejercicio no debe suponer un esfuerzo extremo, hacerlo con tranquilidad y hasta donde se pueda manteniendo los rangos meta",
-        beepInterval: 30,
-        beepAction: "¡Levantarse 2-3 segundos!"
-      },
-      {
-        name: "Enfriamiento",
-        duration: 300,
-        intensity: "sin resistencia",
-        hrTarget: "HR < 60 y >50",
-        description: "Respirar 4s in / 4s out"
-      }
-    ]
-  },
+  id: "1",
+  slug: "marcha-tonificacion",
+  name: "🚶‍♀️ 1. Marcha + Tonificación suave",
+  description: "Alterna marcha controlada y respiración activa para mejorar ritmo y control cardiovascular.",
+  intro: '"Hoy damos los primeros pasos de la nueva fase. Ritmo suave, respiración consciente y buena energía."',
+  objective: "Subir pulsaciones de forma controlada y tonificar sin fatiga.",
+  focus: "Resistencia aeróbica ligera y control respiratorio.",
+  duration: "40 min",
+  difficulty: "Intermedio",
+  image: paseoMarImg,
+  hrRange: "50–60 lpm",
+  restMessage: "Recupera el ritmo, respira suave y toma agua 💧",
+  phases: [
+    {
+      name: "Calentamiento",
+      duration: 300,
+      intensity: "suave sin resistencia",
+      hrTarget: "HR ≤ 50 lpm",
+      description: "Marcha en el sitio 2′ + movilidad de cuello, hombros y tobillos 2′ + respiración 3–3 (1′)."
+    },
+    {
+      name: "Set 1",
+      duration: 300,
+      intensity: "moderada",
+      hrTarget: "HR 50–60 lpm",
+      description: "Marcha continua de 2′ y respiración activa de 3′. Repite 2 veces para completar 10′ en total. Inhala 3, exhala 3. Si superas 62 lpm o notas fatiga, baja ritmo."
+    },
+    {
+      name: "Recuperación 1",
+      duration: 60,
+      intensity: "muy suave",
+      description: "Caminata ligera o respiración tranquila. Anota FC y TA."
+    },
+    {
+      name: "Set 2",
+      duration: 540,
+      intensity: "ligera-media",
+      hrTarget: "HR 50–60 lpm",
+      description: "Alterna 2′ de marcha y 3′ de respiración diafragmática. Busca mantener el control del pulso y la respiración."
+    },
+    {
+      name: "Recuperación 2",
+      duration: 60,
+      intensity: "suave",
+      description: "Toma aire, anota tus mediciones y comenta cómo te sientes."
+    },
+    {
+      name: "Set 3 · Estiramientos guiados",
+      duration: 540,
+      intensity: "muy ligera",
+      hrTarget: "HR bajando hacia 45–50 lpm",
+      description: "1️⃣ Cuello lateral (oreja a hombro) 2x20″ por lado. 2️⃣ Pectoral en pared 2x20″. 3️⃣ Abrazo de espalda 2x20″. 4️⃣ Isquios sentado 2x20″ por lado. Respira 2–2 con calma."
+    },
+    {
+      name: "Enfriamiento",
+      duration: 300,
+      intensity: "sin resistencia",
+      hrTarget: "HR ≤ 50",
+      description: "Respira profundo (2–2), relaja hombros y siente el latido calmarse."
+    }
+  ]
+}
   {
     id: "2",
     slug: "bolita-llaves",
