@@ -102,6 +102,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          member_name: Database["public"]["Enums"]["family_member"] | null
           updated_at: string
         }
         Insert: {
@@ -109,6 +110,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          member_name?: Database["public"]["Enums"]["family_member"] | null
           updated_at?: string
         }
         Update: {
@@ -116,6 +118,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          member_name?: Database["public"]["Enums"]["family_member"] | null
           updated_at?: string
         }
         Relationships: []
@@ -196,6 +199,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      family_member: "Ivan" | "Nicolas" | "Sonia" | "Nadia"
     }
     CompositeTypes: {
       [_ in never]: never

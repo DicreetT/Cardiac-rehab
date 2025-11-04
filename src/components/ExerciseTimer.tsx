@@ -186,7 +186,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     }
 
     if (!sessionId && user) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("exercise_sessions")
         .insert({
           user_id: user.id,
@@ -195,7 +195,11 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         })
         .select()
         .single();
-      if (data) setSessionId(data.id);
+      if (error) {
+        console.error("exercise_sessions insert error", error);
+      } else if (data) {
+        setSessionId(data.id);
+      }
     }
 
     setIsRunning(true);
@@ -275,11 +279,14 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         timestamp: new Date().toISOString(),
       };
 
-      await supabase.from("sos_records").insert({
+      const { error } = await supabase.from("sos_records").insert({
         session_id: sessionId,
         phase_name: newSOSRecord.phaseName,
         symptoms: newSOSRecord.symptoms,
       });
+      if (error) {
+        console.error("sos_records insert error", error);
+      }
 
       setSOSRecords((r) => [...r, newSOSRecord]);
       setShowSOSDialog(false);
@@ -290,10 +297,18 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   const saveSessionToDatabase = async () => {
     if (!sessionId) return;
 
-    await supabase.from("exercise_sessions").update({ completed: true }).eq("id", sessionId);
+    {
+      const { error } = await supabase
+        .from("exercise_sessions")
+        .update({ completed: true })
+        .eq("id", sessionId);
+      if (error) {
+        console.error("exercise_sessions update error", error);
+      }
+    }
 
     for (const record of hrRecords) {
-      await supabase.from("hr_records").insert({
+      const { error } = await supabase.from("hr_records").insert({
         session_id: sessionId,
         phase_name: record.phaseName,
         hr: record.hr,
@@ -302,6 +317,9 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         target: record.target,
         comment: record.comment,
       });
+      if (error) {
+        console.error("hr_records insert error", error);
+      }
     }
   };
 

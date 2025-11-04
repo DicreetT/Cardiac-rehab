@@ -15,16 +15,17 @@ export default function Index() {
             <div className="max-w-3xl text-center">
               <div className="mb-2 inline-block rotate-[-4deg] bg-yellow-400 px-4 py-1 rounded-lg shadow-lg transform hover:rotate-[4deg] transition-transform duration-300">
                 <span className="font-bubblegum text-xl text-black">
-                  ¡Bienvenido!
+                  Family Health
                 </span>
               </div>
               
               <h1 className="font-caveat text-5xl sm:text-6xl font-bold leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] animate-pulse-subtle text-white mb-4">
-                Rehabilitación cardiaca para volver a tu vida con seguridad
+                Una casa para cuidarnos: cuerpo, corazón y familia
               </h1>
               
               <p className="mt-4 text-lg sm:text-xl text-white drop-shadow-md bg-black/40 backdrop-blur-sm rounded-xl p-4 mb-6">
-                Acompañamiento de especialistas: ejercicio, educación y apoyo emocional para ti y tu familia.
+                Esta página te da herramientas para responsabilizarte de tu salud. Poner atención al cuerpo es un regalo:
+                un don ser uno y vivir. Regístrate y entra a tu pestaña personal.
               </p>
 
               <div className="bg-white/60 backdrop-blur-md rounded-2xl p-8 shadow-2xl border-2 border-black/10 max-w-md mx-auto">
@@ -42,20 +43,20 @@ export default function Index() {
                 </div>
 
                 <div className="mt-6 p-4 bg-white/80 rounded-lg border border-gray-200">
-                  <h3 className="font-bold text-gray-800 mb-3 text-sm">Qué esperar</h3>
+                  <h3 className="font-bold text-gray-800 mb-3 text-sm">Qué encontrarás</h3>
                   <ol className="text-xs text-gray-700 space-y-2 list-decimal list-inside">
-                    <li>Valoración inicial</li>
-                    <li>Plan de ejercicio adaptado y monitorizado</li>
-                    <li>Educación (medicación, nutrición, estrés)</li>
-                    <li>Seguimiento y alta con plan en casa</li>
+                    <li>Información clara para toda la familia</li>
+                    <li>Planes de ejercicio y educación</li>
+                    <li>Seguimiento personal por avatar</li>
+                    <li>Cariño y respeto por tu proceso</li>
                   </ol>
                 </div>
 
                 <button 
-                  onClick={() => navigate("/info")}
+                  onClick={() => navigate("/auth")}
                   className="w-full mt-6 bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg border-2 border-black/10 transition-all duration-300 hover:scale-105"
                 >
-                  ¡Vamos allá!
+                  Ir a registro
                 </button>
               </div>
             </div>

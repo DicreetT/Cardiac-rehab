@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,17 +18,36 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+ const routeAfterAuth = async (userId: string) => {
+  type FamilyMember = Database["public"]["Enums"]["family_member"];
+  const { data } = await supabase
+    .from("profiles")
+    .select("member_name")
+    .eq("id", userId)
+    .maybeSingle();
+  const member = (data?.member_name || null) as FamilyMember | null;
+  if (!member) {
+    navigate("/choose-avatar");
+    return;
+  }
+  const lower = member.toLowerCase();
+  if (member === "Ivan") navigate("/plans");
+  else navigate(`/member/${lower}`);
+ };
+
  const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setLoading(true);
 
   try {
     if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
       toast({ title: "¡Bienvenido!", description: "Has iniciado sesión correctamente" });
-      navigate("/plans");
+      const uid = data.user?.id;
+      if (uid) await routeAfterAuth(uid);
+      else navigate("/choose-avatar");
     } else {
       // 1) Crear usuario en Auth con metadata (full_name)
       const { data: signUpData, error } = await supabase.auth.signUp({
@@ -56,9 +76,10 @@ export default function Auth() {
 
       toast({
         title: "¡Registro exitoso!",
-        description: "Tu cuenta ha sido creada. Iniciando sesión...",
+        description: "Tu cuenta ha sido creada. Elige tu avatar para continuar.",
       });
-      navigate("/plans");
+      if (signUpData.user?.id) await routeAfterAuth(signUpData.user.id);
+      else navigate("/choose-avatar");
     }
   } catch (err: any) {
     console.error(err);
