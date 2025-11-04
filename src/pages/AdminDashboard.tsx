@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import BubbleBackground from "@/components/BubbleBackground";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Heart, AlertTriangle, TrendingUp } from "lucide-react";
+import AdminWeeklyReport from "./AdminWeeklyReport";
 
 interface Session {
   id: string;
@@ -335,6 +336,9 @@ export default function AdminDashboard() {
             </Card>
           )}
         </div>
+
+        {/* 🔹 Reporte semanal solo para admin (dentro del contenedor) */}
+        <AdminWeeklyReport />
       </div>
     </div>
   );
