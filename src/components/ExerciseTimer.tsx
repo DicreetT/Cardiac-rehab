@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import RPECard from "@/components/RPECard";
 
 interface ExerciseTimerProps {
   plan: Plan;
@@ -103,7 +104,6 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     osc.frequency.value = frequency;
     osc.type = "sine";
 
-    // volumen cómodo y corta cola
     const t = audioContextRef.current.currentTime;
     gain.gain.setValueAtTime(0.5, t);
     gain.gain.exponentialRampToValueAtTime(0.01, t + duration);
@@ -138,12 +138,10 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
               setPendingPhaseForHR(currentPhaseIndex);
               setShowHRDialog(true);
             } else {
-              // avanzar automático (descansos/enfriamiento sin hrTarget)
               setCurrentPhaseIndex((i) => i + 1);
               return plan.phases[currentPhaseIndex + 1].duration;
             }
           } else {
-            // fin de plan
             setIsRunning(false);
             setIsCompleted(true);
             saveSessionToDatabase();
@@ -151,7 +149,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           }
         }
 
-        // pitidos intermedios (si la fase define beepInterval)
+        // pitidos intermedios
         if (currentPhase.beepInterval) {
           const elapsed = currentPhase.duration - prev;
           if (
@@ -171,7 +169,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     return () => clearInterval(interval);
   }, [isRunning, isCompleted, currentPhaseIndex, currentPhase, plan.phases]);
 
-  // beep al iniciar nueva fase y reset de marcador de pitidos
+  // beep al iniciar nueva fase
   useEffect(() => {
     if (isRunning && currentPhaseIndex > 0) {
       playBeep(800, 0.25);
@@ -180,7 +178,6 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
   }, [currentPhaseIndex, isRunning]);
 
   const handleStart = async () => {
-    // asegurar audio activo en interacción
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
@@ -188,7 +185,6 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
       await audioContextRef.current.resume();
     }
 
-    // crear sesión si no existe
     if (!sessionId && user) {
       const { data } = await supabase
         .from("exercise_sessions")
@@ -204,7 +200,6 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
 
     setIsRunning(true);
 
-    // beep de confirmación
     setTimeout(() => playBeep(800, 0.22), 100);
   };
 
@@ -226,9 +221,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     setCurrentComment("");
     setCurrentSOSInput("");
     lastBeepRef.current = 0;
-  };
-
-  const handleSaveHR = () => {
+  };   const handleSaveHR = () => {
     if (pendingPhaseForHR !== null && currentHRInput) {
       const phase = plan.phases[pendingPhaseForHR];
       const newRecord: HRRecord = {
@@ -240,6 +233,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
         comment: currentComment.trim() || undefined,
         timestamp: new Date().toISOString(),
       };
+
       setHrRecords((r) => [...r, newRecord]);
 
       // limpiar y avanzar
@@ -321,9 +315,11 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
     currentPhase.name.toLowerCase().includes("descanso") ||
     currentPhase.name.toLowerCase().includes("recuperación") ||
     currentPhase.intensity === "pausa";
+
   const isSetPhase = currentPhase.name.toLowerCase().startsWith("set");
   const isWarmupPhase = currentPhase.name.toLowerCase().includes("calentamiento");
   const isCooldownPhase = currentPhase.name.toLowerCase().includes("enfriamiento");
+
   const showSOSButton = isSetPhase || isWarmupPhase || isCooldownPhase;
 
   return (
@@ -348,6 +344,9 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
           )}
         </div>
       )}
+
+      {/* RPE bonito */}
+      <RPECard min={plan.rpe?.min ?? 2} max={plan.rpe?.max ?? 4} />
 
       {/* Tabla del plan */}
       <div className="bg-white p-6 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -393,7 +392,9 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
             </div>
           )}
 
-          <div className="text-6xl font-bold font-mono mb-2 text-gray-900">{formatTime(phaseTimeLeft)}</div>
+          <div className="text-6xl font-bold font-mono mb-2 text-gray-900">
+            {formatTime(phaseTimeLeft)}
+          </div>
 
           <p className="text-gray-600 mb-2">
             <span className="font-semibold">Intensidad:</span> {currentPhase.intensity}
@@ -415,9 +416,15 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
 
           {isRestPhase && (
             <div className="mt-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg overflow-hidden">
-              <img src={bolitaZen} alt="Bolita en meditación" className="w-full h-96 object-cover object-top" />
+              <img
+                src={bolitaZen}
+                alt="Bolita en meditación"
+                className="w-full h-96 object-cover object-top"
+              />
               {plan.restMessage && (
-                <p className="font-bubblegum text-green-800 text-lg p-4">{plan.restMessage}</p>
+                <p className="font-bubblegum text-green-800 text-lg p-4">
+                  {plan.restMessage}
+                </p>
               )}
             </div>
           )}
@@ -476,6 +483,7 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
               Describe cómo te sientes en este momento. Esto nos ayuda a cuidarte mejor.
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4 py-4">
             <div>
               <Label htmlFor="sos-input">Síntomas o sensaciones</Label>
@@ -487,11 +495,18 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                 className="mt-1"
                 rows={5}
               />
-              <p className="text-xs text-gray-500 mt-2">💡 Si persisten o empeoran, detén el ejercicio y avisa.</p>
+              <p className="text-xs text-gray-500 mt-2">
+                💡 Si persisten o empeoran, detén el ejercicio y avisa.
+              </p>
             </div>
           </div>
+
           <div className="flex gap-3">
-            <Button onClick={handleSaveSOS} disabled={!currentSOSInput.trim()} className="flex-1 bg-red-600 hover:bg-red-700">
+            <Button
+              onClick={handleSaveSOS}
+              disabled={!currentSOSInput.trim()}
+              className="flex-1 bg-red-600 hover:bg-red-700"
+            >
               Guardar registro
             </Button>
             <Button
@@ -519,7 +534,8 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
             <DialogDescription>
               {pendingPhaseForHR !== null && (
                 <>
-                  Has completado: <span className="font-bold">{plan.phases[pendingPhaseForHR].name}</span>
+                  Has completado:{" "}
+                  <span className="font-bold">{plan.phases[pendingPhaseForHR].name}</span>
                   <br />
                   Meta: {plan.phases[pendingPhaseForHR].hrTarget}
                 </>
@@ -626,10 +642,15 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                   </div>
                 </div>
                 {r.comment && (
-                  <p className="text-sm text-gray-700 italic mt-2 border-t border-red-200 pt-2">"{r.comment}"</p>
+                  <p className="text-sm text-gray-700 italic mt-2 border-t border-red-200 pt-2">
+                    "{r.comment}"
+                  </p>
                 )}
                 <div className="text-xs text-gray-500 mt-1">
-                  {new Date(r.timestamp).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                  {new Date(r.timestamp).toLocaleTimeString("es-ES", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               </div>
             ))}
@@ -663,10 +684,15 @@ export default function ExerciseTimer({ plan, onComplete }: ExerciseTimerProps) 
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-bold text-gray-900">{r.phaseName}</span>
                   <div className="text-xs text-gray-600">
-                    {new Date(r.timestamp).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(r.timestamp).toLocaleTimeString("es-ES", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 bg-red-50 p-3 rounded border border-red-200">{r.symptoms}</p>
+                <p className="text-sm text-gray-700 bg-red-50 p-3 rounded border border-red-200">
+                  {r.symptoms}
+                </p>
               </div>
             ))}
           </div>
