@@ -32,79 +32,84 @@ export interface Plan {
 }
 
 export const plans: Plan[] = [
-    {
+ {
   id: "1",
   slug: "paseo-mar",
-  name: "🏖️ 1. Marcha y tonificación suave",
-  description: "Marcha corta + respiraciones que suben un poquito el pulso",
-  intro: "“Hoy mezclamos marcha suave con respiraciones. Todo claro y guiado paso a paso.”",
-  objective: "Subir ligeramente el pulso sin fatiga y mejorar la tolerancia al esfuerzo.",
-  focus: "Ritmo cómodo, hombros sueltos y respiración tranquila.",
-  duration: "33 min",
+  name: "🏖️ 1. Paseo por el mar (bici solo al inicio y al final)",
+  description: "Caliento y enfrío en bici. En el medio hago marcha, fuerza muy suave y movilidad SIN bici.",
+  intro: "La brisa trae calma. Hoy pedaleas solo para entrar y salir del ejercicio; el trabajo principal lo haces en el suelo, con tu propio cuerpo.",
+  objective: "Subir un poco las pulsaciones sin forzar, mover articulaciones y ganar confianza.",
+  focus: "Respirar de forma tranquila mientras el cuerpo se activa.",
+  duration: "≈ 23 min",
   difficulty: "Principiante",
   image: paseoMarImg,
-  hrRange: "Reposo ~40 lpm · En esfuerzo 50–60 lpm (si superas 65 lpm, baja el ritmo)",
-  restMessage: "Recupera suave, sacude hombros y muñecas 🌿",
+  hrRange: "Objetivo general: 48–60 latidos por minuto",
+  restMessage: "Respira por la nariz, hombros sueltos, mandíbula relajada.",
   phases: [
+    // --- BICI: SOLO CALENTAMIENTO ---
     {
-      name: "Calentamiento",
+      name: "Calentamiento (en bici)",
       duration: 300, // 5 min
-      intensity: "sin resistencia",
-      hrTarget: "Muy cómodo (40–50 lpm).",
-      description: "Pedalea sin resistencia. Espalda larga y hombros sueltos. Respira 4s entra / 4s sale."
+      intensity: "muy suave, sin resistencia",
+      hrTarget: "Mantén tu frecuencia cardiaca entre 48 y 56 lpm.",
+      description: "Pedalea como si pasearas. Inhala 4 segundos por la nariz y exhala 4 por la boca. Hombros y manos blanditas."
+    },
+
+    // --- SETS SIN BICI ---
+    {
+      name: "Set 1 (sin bici) · Marcha cómoda + brazos",
+      duration: 180, // 3 min
+      intensity: "suave",
+      hrTarget: "Sube poco a poco hacia 50–58 lpm (deberías poder hablar en frases).",
+      description: "Camina en el sitio o por la habitación. Balancea los brazos a los lados. Cada 30 s, eleva un poco las rodillas durante 5–6 pasos y vuelve al ritmo cómodo."
     },
     {
-      name: "Set 1",
-      duration: 540, // 9 min: 2' marcha + 3' resp · repetido 1 vez (2+3)×2 = 10… ajusta si prefieres
-      intensity: "leve",
-      hrTarget: "50–60 lpm. Si hablar cuesta, baja el ritmo.",
-      description:
-        "Secuencia: 2 min de marcha suave + 3 min de respiración activa (4s entra / 4s sale). " +
-        "En cada 30 s, 3–4 pedaladas un poquito más firmes y vuelves al ritmo cómodo. Repite el patrón para completar el set."
-    },
-    {
-      name: "Recuperación",
+      name: "Recuperación 1 (sin bici) · Respiración de caja",
       duration: 60, // 1 min
       intensity: "pausa",
-      description: "Pedaleo muy suave. Respira 4-4. Sacude hombros y muñecas."
+      description: "Respira 4 segundos entrando aire, 4 mantén, 4 suelta, 4 mantén sin aire. Hombros lejos de las orejas."
+    },
+
+    {
+      name: "Set 2 (sin bici) · Silla: sentarse y levantarse lento",
+      duration: 240, // 4 min
+      intensity: "suave–media (controlada)",
+      hrTarget: "Apunta a 52–60 lpm; esfuerzo cómodo (3/10: notas el trabajo, pero podrías seguir).",
+      description: "Coloca una silla detrás. 60 s de sentarse y levantarse muy lento (manos cruzadas sobre el pecho si puedes). Luego 60 s de puntillas y talones alternando, agarrándote al respaldo si lo necesitas. Repite ese par (2×2 min)."
     },
     {
-      name: "Set 2",
-      duration: 540, // 9 min
-      intensity: "leve–moderada",
-      hrTarget: "50–60 lpm (objetivo 4/10 de esfuerzo).",
-      description:
-        "Secuencia: 2 min de marcha + 3 min con respiración “elástica”: 4s entra · 1s pausa · 4s sale · 1s pausa. " +
-        "En la última exhalación de cada minuto, haz 5 pedaladas firmes sin mover el tronco. Repite para completar el set."
-    },
-    {
-      name: "Recuperación",
+      name: "Recuperación 2 (sin bici) · Nariz–nariz",
       duration: 60, // 1 min
       intensity: "pausa",
-      description: "Muy suave. Observa cómo baja el pulso."
+      description: "Solo por la nariz: inhala 4 s, exhala 4 s. Sacude suavemente muñecas y hombros."
     },
+
     {
-      name: "Set 3",
-      duration: 540, // 9 min
-      intensity: "muy leve (sin resistencia)",
-      hrTarget: "Pulso bajando (hacia 45–55 lpm).",
-      description:
-        "Estirar en la bici, movimientos simples: " +
-        "• Cuello lateral (x4 por lado): oreja a hombro, ayuda suave con mano homóloga, cuenta 4; respira 2-2 y cambia. " +
-        "• Pectoral (x4 por lado): mano en respaldo/manillar, abre pecho 4, respira 2-2. " +
-        "• Espalda alta (x4): manos unidas al frente, redondea espalda 4, respira 2-2. " +
-        "• Sentarse/levantarse suave (x4): detén pedaleo, levántate 2-3 s y siéntate; vuelve a pedalear suave. " +
-        "• Pantorrillas (x4 por lado): talón “pesado” abajo 4, respira 2-2."
-    },
-    {
-      name: "Enfriamiento",
+      name: "Set 3 (sin bici) · Movilidad guiada paso a paso",
       duration: 300, // 5 min
-      intensity: "sin resistencia",
-      hrTarget: "Volver a cómodo (40–50 lpm).",
-      description: "Pedaleo sin carga. Respira 4-4 y termina con 3 respiraciones largas (5 entra / 6 sale)."
+      intensity: "muy suave (movilidad)",
+      hrTarget: "Mantén 48–56 lpm (sensación de calma activa).",
+      description:
+        // instrucciones “como de audio”, muy verbales:
+        "1) Cuello (1 min): Inclina oreja hacia hombro derecho. Con la mano derecha ayuda MUY suave 4 tiempos. Cambia al lado izquierdo. Repite 2 veces por lado.\n" +
+        "2) Hombros (1 min): Círculos grandes hacia atrás 10 veces; luego 10 hacia delante. Respira tranquilo.\n" +
+        "3) Columna (1 min): De pie, brazos cruzados sobre el pecho. Gira tronco suave mirando por encima del hombro derecho; vuelve al centro; repite a la izquierda. 6 veces por lado.\n" +
+        "4) Tobillos (1 min): Apoyo en silla/mesa. Círculos de tobillo derecho 10 veces cada sentido; cambia de pie.\n" +
+        "5) Pantorrilla (1 min): Apoya manos en pared. Pierna derecha atrás, talón al suelo, rodilla estirada. Mantén 20 s, cambia de pierna, repite 2 veces.",
+      beepInterval: 60,
+      beepAction: "Cambio de ejercicio dentro del set de movilidad"
+    },
+
+    // --- BICI: SOLO ENFRIAMIENTO ---
+    {
+      name: "Enfriamiento (en bici)",
+      duration: 240, // 4 min
+      intensity: "muy suave, sin resistencia",
+      hrTarget: "Vuelve lentamente hacia 48–52 lpm.",
+      description: "Pedalea suave. Nariz–nariz 5 s entrar, 5 s salir. Cierra con 3 respiraciones profundas y hombros relajados."
     }
   ]
-},
+},  
   {
     id: "2",
     slug: "bolita-llaves",
