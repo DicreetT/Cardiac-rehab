@@ -31,7 +31,7 @@ export interface Plan {
   restMessage?: string; // mensaje motivacional durante descansos
 }
 
-export const plans: Plan[] = [lento."
+export const plans: Plan[] = [
     {
   id: "1",
   slug: "paseo-mar",
